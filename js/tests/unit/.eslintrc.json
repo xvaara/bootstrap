@@ -1,10 +1,14 @@
 {
   "extends": [
-    "../../../.eslintrc.json"
+    "../../../.eslintrc.json",
+    "plugin:jasmine/recommended"
   ],
   "env": {
     "jasmine": true
   },
+  "plugins": [
+    "jasmine"
+  ],
   "rules": {
     "unicorn/consistent-function-scoping": "off",
     "unicorn/no-useless-undefined": "off",
