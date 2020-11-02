@@ -254,7 +254,7 @@ var tooltip = bootstrap.Tooltip.getOrCreateInstance(exampleTriggerEl) // Returns
 
 ### Events
 
-{{< bs-table "table" >}}
+{{< bs-table >}}
 | Event | Description |
 | --- | --- |
 | `show.bs.tooltip` | This event fires immediately when the <code>show</code> instance method is called. |
