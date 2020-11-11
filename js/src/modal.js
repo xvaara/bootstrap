@@ -229,6 +229,10 @@ class Modal {
     return config
   }
 
+  _isElementOverflowing() {
+    return this._element.scrollHeight > document.documentElement.clientHeight
+  }
+
   _triggerBackdropTransition() {
     const hideEventPrevented = $.Event(EVENT_HIDE_PREVENTED)
 
@@ -237,9 +241,7 @@ class Modal {
       return
     }
 
-    const isModalOverflowing = this._element.scrollHeight > document.documentElement.clientHeight
-
-    if (!isModalOverflowing) {
+    if (!this._isElementOverflowing()) {
       this._element.style.overflowY = 'hidden'
     }
 
@@ -250,7 +252,7 @@ class Modal {
 
     $(this._element).one(Util.TRANSITION_END, () => {
       this._element.classList.remove(CLASS_NAME_STATIC)
-      if (!isModalOverflowing) {
+      if (!this._isElementOverflowing()) {
         $(this._element).one(Util.TRANSITION_END, () => {
           this._element.style.overflowY = ''
         })
@@ -453,13 +455,11 @@ class Modal {
   // ----------------------------------------------------------------------
 
   _adjustDialog() {
-    const isModalOverflowing = this._element.scrollHeight > document.documentElement.clientHeight
-
-    if (!this._isBodyOverflowing && isModalOverflowing) {
+    if (!this._isBodyOverflowing && this._isElementOverflowing()) {
       this._element.style.paddingLeft = `${this._scrollbarWidth}px`
     }
 
-    if (this._isBodyOverflowing && !isModalOverflowing) {
+    if (this._isBodyOverflowing && !this._isElementOverflowing()) {
       this._element.style.paddingRight = `${this._scrollbarWidth}px`
     }
   }
