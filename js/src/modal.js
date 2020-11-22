@@ -104,11 +104,11 @@ class Modal {
       return
     }
 
-    const showEvent = $.Event(EVENT_SHOW, {
-      relatedTarget
-    })
+    const $element = $(this._element)
 
-    $(this._element).trigger(showEvent)
+    const showEvent = $.Event(EVENT_SHOW, { relatedTarget })
+
+    $element.trigger(showEvent)
 
     if (showEvent.isDefaultPrevented()) {
       return
@@ -116,7 +116,7 @@ class Modal {
 
     this._isShown = true
 
-    if ($(this._element).hasClass(CLASS_NAME_FADE)) {
+    if ($element.hasClass(CLASS_NAME_FADE)) {
       this._isTransitioning = true
     }
 
@@ -128,14 +128,10 @@ class Modal {
     this._setEscapeEvent()
     this._setResizeEvent()
 
-    $(this._element).on(
-      EVENT_CLICK_DISMISS,
-      SELECTOR_DATA_DISMISS,
-      event => this.hide(event)
-    )
+    $element.on(EVENT_CLICK_DISMISS, SELECTOR_DATA_DISMISS, event => this.hide(event))
 
     $(this._dialog).on(EVENT_MOUSEDOWN_DISMISS, () => {
-      $(this._element).one(EVENT_MOUSEUP_DISMISS, event => {
+      $element.one(EVENT_MOUSEUP_DISMISS, event => {
         if ($(event.target).is(this._element)) {
           this._ignoreBackdropClick = true
         }
@@ -155,15 +151,16 @@ class Modal {
     }
 
     const hideEvent = $.Event(EVENT_HIDE)
+    const $element = $(this._element)
 
-    $(this._element).trigger(hideEvent)
+    $element.trigger(hideEvent)
 
     if (!this._isShown || hideEvent.isDefaultPrevented()) {
       return
     }
 
     this._isShown = false
-    const transition = $(this._element).hasClass(CLASS_NAME_FADE)
+    const transition = $element.hasClass(CLASS_NAME_FADE)
 
     if (transition) {
       this._isTransitioning = true
@@ -174,15 +171,15 @@ class Modal {
 
     $(document).off(EVENT_FOCUSIN)
 
-    $(this._element).removeClass(CLASS_NAME_SHOW)
+    $element.removeClass(CLASS_NAME_SHOW)
 
-    $(this._element).off(EVENT_CLICK_DISMISS)
+    $element.off(EVENT_CLICK_DISMISS)
     $(this._dialog).off(EVENT_MOUSEDOWN_DISMISS)
 
     if (transition) {
       const transitionDuration = Util.getTransitionDurationFromElement(this._element)
 
-      $(this._element)
+      $element
         .one(Util.TRANSITION_END, event => this._hideModal(event))
         .emulateTransitionEnd(transitionDuration)
     } else {
@@ -235,8 +232,9 @@ class Modal {
 
   _triggerBackdropTransition() {
     const hideEventPrevented = $.Event(EVENT_HIDE_PREVENTED)
+    const $element = $(this._element)
 
-    $(this._element).trigger(hideEventPrevented)
+    $element.trigger(hideEventPrevented)
     if (hideEventPrevented.isDefaultPrevented()) {
       return
     }
@@ -248,12 +246,12 @@ class Modal {
     this._element.classList.add(CLASS_NAME_STATIC)
 
     const modalTransitionDuration = Util.getTransitionDurationFromElement(this._dialog)
-    $(this._element).off(Util.TRANSITION_END)
+    $element.off(Util.TRANSITION_END)
 
-    $(this._element).one(Util.TRANSITION_END, () => {
+    $element.one(Util.TRANSITION_END, () => {
       this._element.classList.remove(CLASS_NAME_STATIC)
       if (!this._isElementOverflowing()) {
-        $(this._element).one(Util.TRANSITION_END, () => {
+        $element.one(Util.TRANSITION_END, () => {
           this._element.style.overflowY = ''
         })
           .emulateTransitionEnd(this._element, modalTransitionDuration)
@@ -264,11 +262,11 @@ class Modal {
   }
 
   _showElement(relatedTarget) {
-    const transition = $(this._element).hasClass(CLASS_NAME_FADE)
+    const $element = $(this._element)
+    const transition = $element.hasClass(CLASS_NAME_FADE)
     const modalBody = this._dialog ? this._dialog.querySelector(SELECTOR_MODAL_BODY) : null
 
-    if (!this._element.parentNode ||
-        this._element.parentNode.nodeType !== Node.ELEMENT_NODE) {
+    if (!this._element.parentNode || this._element.parentNode.nodeType !== Node.ELEMENT_NODE) {
       // Don't move modal's DOM position
       document.body.appendChild(this._element)
     }
@@ -288,15 +286,13 @@ class Modal {
       Util.reflow(this._element)
     }
 
-    $(this._element).addClass(CLASS_NAME_SHOW)
+    $element.addClass(CLASS_NAME_SHOW)
 
     if (this._config.focus) {
       this._enforceFocus()
     }
 
-    const shownEvent = $.Event(EVENT_SHOWN, {
-      relatedTarget
-    })
+    const shownEvent = $.Event(EVENT_SHOWN, { relatedTarget })
 
     const transitionComplete = () => {
       if (this._config.focus) {
@@ -304,7 +300,7 @@ class Modal {
       }
 
       this._isTransitioning = false
-      $(this._element).trigger(shownEvent)
+      $element.trigger(shownEvent)
     }
 
     if (transition) {
@@ -331,8 +327,10 @@ class Modal {
   }
 
   _setEscapeEvent() {
+    const $element = $(this._element)
+
     if (this._isShown) {
-      $(this._element).on(EVENT_KEYDOWN_DISMISS, event => {
+      $element.on(EVENT_KEYDOWN_DISMISS, event => {
         if (this._config.keyboard && event.which === ESCAPE_KEYCODE) {
           event.preventDefault()
           this.hide()
@@ -341,15 +339,17 @@ class Modal {
         }
       })
     } else if (!this._isShown) {
-      $(this._element).off(EVENT_KEYDOWN_DISMISS)
+      $element.off(EVENT_KEYDOWN_DISMISS)
     }
   }
 
   _setResizeEvent() {
+    const $window = $(window)
+
     if (this._isShown) {
-      $(window).on(EVENT_RESIZE, event => this.handleUpdate(event))
+      $window.on(EVENT_RESIZE, event => this.handleUpdate(event))
     } else {
-      $(window).off(EVENT_RESIZE)
+      $window.off(EVENT_RESIZE)
     }
   }
 
@@ -375,8 +375,8 @@ class Modal {
   }
 
   _showBackdrop(callback) {
-    const animate = $(this._element).hasClass(CLASS_NAME_FADE) ?
-      CLASS_NAME_FADE : ''
+    const $element = $(this._element)
+    const animate = $element.hasClass(CLASS_NAME_FADE) ? CLASS_NAME_FADE : ''
 
     if (this._isShown && this._config.backdrop) {
       this._backdrop = document.createElement('div')
@@ -388,7 +388,7 @@ class Modal {
 
       $(this._backdrop).appendTo(document.body)
 
-      $(this._element).on(EVENT_CLICK_DISMISS, event => {
+      $element.on(EVENT_CLICK_DISMISS, event => {
         if (this._ignoreBackdropClick) {
           this._ignoreBackdropClick = false
           return
@@ -435,7 +435,7 @@ class Modal {
         }
       }
 
-      if ($(this._element).hasClass(CLASS_NAME_FADE)) {
+      if ($element.hasClass(CLASS_NAME_FADE)) {
         const backdropTransitionDuration = Util.getTransitionDurationFromElement(this._backdrop)
 
         $(this._backdrop)
@@ -484,18 +484,20 @@ class Modal {
 
       // Adjust fixed content padding
       $(fixedContent).each((index, element) => {
+        const $element = $(element)
         const actualPadding = element.style.paddingRight
-        const calculatedPadding = $(element).css('padding-right')
-        $(element)
+        const calculatedPadding = $element.css('padding-right')
+        $element
           .data('padding-right', actualPadding)
           .css('padding-right', `${parseFloat(calculatedPadding) + this._scrollbarWidth}px`)
       })
 
       // Adjust sticky content margin
       $(stickyContent).each((index, element) => {
+        const $element = $(element)
         const actualMargin = element.style.marginRight
-        const calculatedMargin = $(element).css('margin-right')
-        $(element)
+        const calculatedMargin = $element.css('margin-right')
+        $element
           .data('margin-right', actualMargin)
           .css('margin-right', `${parseFloat(calculatedMargin) - this._scrollbarWidth}px`)
       })
