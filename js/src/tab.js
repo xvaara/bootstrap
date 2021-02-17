@@ -9,7 +9,8 @@ import {
   defineJQueryPlugin,
   getElementFromSelector,
   isDisabled,
-  reflow
+  reflow,
+  getDocument
 } from './util/index'
 import EventHandler from './dom/event-handler'
 import SelectorEngine from './dom/selector-engine'
@@ -200,7 +201,7 @@ class Tab extends BaseComponent {
  * ------------------------------------------------------------------------
  */
 
-EventHandler.on(document, EVENT_CLICK_DATA_API, SELECTOR_DATA_TOGGLE, function (event) {
+EventHandler.on(getDocument(), EVENT_CLICK_DATA_API, SELECTOR_DATA_TOGGLE, function (event) {
   if (['A', 'AREA'].includes(this.tagName)) {
     event.preventDefault()
   }

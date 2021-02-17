@@ -11,7 +11,8 @@ import {
   isRTL,
   isVisible,
   reflow,
-  typeCheckConfig
+  typeCheckConfig,
+  getDocument
 } from './util/index'
 import EventHandler from './dom/event-handler'
 import Manipulator from './dom/manipulator'
@@ -219,7 +220,7 @@ class Modal extends BaseComponent {
 
     if (!this._element.parentNode || this._element.parentNode.nodeType !== Node.ELEMENT_NODE) {
       // Don't move modal's DOM position
-      document.body.append(this._element)
+      this._document.body.append(this._element)
     }
 
     this._element.style.display = 'block'
@@ -282,7 +283,7 @@ class Modal extends BaseComponent {
     this._element.removeAttribute('role')
     this._isTransitioning = false
     this._backdrop.hide(() => {
-      document.body.classList.remove(CLASS_NAME_OPEN)
+      this._document.body.classList.remove(CLASS_NAME_OPEN)
       this._resetAdjustments()
       this._scrollBar.reset()
       EventHandler.trigger(this._element, EVENT_HIDDEN)
@@ -321,7 +322,7 @@ class Modal extends BaseComponent {
     }
 
     const { classList, scrollHeight, style } = this._element
-    const isModalOverflowing = scrollHeight > document.documentElement.clientHeight
+    const isModalOverflowing = scrollHeight > this._document.documentElement.clientHeight
 
     // return if the following background transition hasn't yet completed
     if ((!isModalOverflowing && style.overflowY === 'hidden') || classList.contains(CLASS_NAME_STATIC)) {
@@ -350,7 +351,7 @@ class Modal extends BaseComponent {
   // ----------------------------------------------------------------------
 
   _adjustDialog() {
-    const isModalOverflowing = this._element.scrollHeight > document.documentElement.clientHeight
+    const isModalOverflowing = this._element.scrollHeight > this._document.documentElement.clientHeight
     const scrollbarWidth = this._scrollBar.getWidth()
     const isBodyOverflowing = scrollbarWidth > 0
 
@@ -393,7 +394,7 @@ class Modal extends BaseComponent {
  * ------------------------------------------------------------------------
  */
 
-EventHandler.on(document, EVENT_CLICK_DATA_API, SELECTOR_DATA_TOGGLE, function (event) {
+EventHandler.on(getDocument(), EVENT_CLICK_DATA_API, SELECTOR_DATA_TOGGLE, function (event) {
   const target = getElementFromSelector(this)
 
   if (['A', 'AREA'].includes(this.tagName)) {
@@ -413,7 +414,7 @@ EventHandler.on(document, EVENT_CLICK_DATA_API, SELECTOR_DATA_TOGGLE, function (
     })
   })
 
-  // avoid conflict when clicking moddal toggler while another one is open
+  // avoid conflict when clicking modal toggler while another one is open
   const allReadyOpen = SelectorEngine.findOne(OPEN_SELECTOR)
   if (allReadyOpen) {
     Modal.getInstance(allReadyOpen).hide()

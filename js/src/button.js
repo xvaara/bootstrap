@@ -5,7 +5,7 @@
  * --------------------------------------------------------------------------
  */
 
-import { defineJQueryPlugin } from './util/index'
+import { defineJQueryPlugin, getDocument } from './util/index'
 import EventHandler from './dom/event-handler'
 import BaseComponent from './base-component'
 
@@ -65,7 +65,7 @@ class Button extends BaseComponent {
  * ------------------------------------------------------------------------
  */
 
-EventHandler.on(document, EVENT_CLICK_DATA_API, SELECTOR_DATA_TOGGLE, event => {
+EventHandler.on(getDocument(), EVENT_CLICK_DATA_API, SELECTOR_DATA_TOGGLE, event => {
   event.preventDefault()
 
   const button = event.target.closest(SELECTOR_DATA_TOGGLE)
