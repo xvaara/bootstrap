@@ -7,11 +7,9 @@
 
 import {
   defineJQueryPlugin,
-  reflow,
-  typeCheckConfig
+  reflow
 } from './util/index'
 import EventHandler from './dom/event-handler'
-import Manipulator from './dom/manipulator'
 import BaseComponent from './base-component'
 import { enableDismissTrigger } from './util/component-functions'
 
@@ -59,9 +57,8 @@ const Default = {
 
 class Toast extends BaseComponent {
   constructor(element, config) {
-    super(element)
+    super(element, config)
 
-    this._config = this._getConfig(config)
     this._timeout = null
     this._hasMouseInteraction = false
     this._hasKeyboardInteraction = false
@@ -145,18 +142,6 @@ class Toast extends BaseComponent {
   }
 
   // Private
-
-  _getConfig(config) {
-    config = {
-      ...Default,
-      ...Manipulator.getDataAttributes(this._element),
-      ...(typeof config === 'object' && config ? config : {})
-    }
-
-    typeCheckConfig(NAME, config, this.constructor.DefaultType)
-
-    return config
-  }
 
   _maybeScheduleHide() {
     if (!this._config.autohide) {

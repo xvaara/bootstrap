@@ -10,12 +10,10 @@ import {
   getElement,
   getSelectorFromElement,
   getElementFromSelector,
-  reflow,
-  typeCheckConfig
+  reflow
 } from './util/index'
 import Data from './dom/data'
 import EventHandler from './dom/event-handler'
-import Manipulator from './dom/manipulator'
 import SelectorEngine from './dom/selector-engine'
 import BaseComponent from './base-component'
 
@@ -67,10 +65,9 @@ const SELECTOR_DATA_TOGGLE = '[data-bs-toggle="collapse"]'
 
 class Collapse extends BaseComponent {
   constructor(element, config) {
-    super(element)
+    super(element, config)
 
     this._isTransitioning = false
-    this._config = this._getConfig(config)
     this._triggerArray = []
 
     const toggleList = SelectorEngine.find(SELECTOR_DATA_TOGGLE)
@@ -231,15 +228,13 @@ class Collapse extends BaseComponent {
 
   // Private
 
-  _getConfig(config) {
-    config = {
-      ...Default,
-      ...Manipulator.getDataAttributes(this._element),
-      ...config
-    }
+  _getConfigDefaultType() {
+    return DefaultType
+  }
+
+  _configAfterMerge(config) {
     config.toggle = Boolean(config.toggle) // Coerce string values
     config.parent = getElement(config.parent)
-    typeCheckConfig(NAME, config, DefaultType)
     return config
   }
 

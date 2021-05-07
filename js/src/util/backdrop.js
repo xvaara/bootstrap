@@ -6,7 +6,8 @@
  */
 
 import EventHandler from '../dom/event-handler'
-import { execute, executeAfterTransition, getElement, reflow, typeCheckConfig } from './index'
+import { execute, executeAfterTransition, getElement, reflow } from './index'
+import Config from './config'
 
 const Default = {
   className: 'modal-backdrop',
@@ -29,11 +30,20 @@ const CLASS_NAME_SHOW = 'show'
 
 const EVENT_MOUSEDOWN = `mousedown.bs.${NAME}`
 
-class Backdrop {
+class Backdrop extends Config {
   constructor(config) {
+    super()
     this._config = this._getConfig(config)
     this._isAppended = false
     this._element = null
+  }
+
+  static get NAME() {
+    return NAME
+  }
+
+  static get Default() {
+    return Default
   }
 
   show(callback) {
@@ -85,15 +95,13 @@ class Backdrop {
     return this._element
   }
 
-  _getConfig(config) {
-    config = {
-      ...Default,
-      ...(typeof config === 'object' ? config : {})
-    }
+  _getConfigDefaultType() {
+    return DefaultType
+  }
 
+  _configAfterMerge(config) {
     // use getElement() with the default "body" to get a fresh Element on each instantiation
     config.rootElement = getElement(config.rootElement)
-    typeCheckConfig(NAME, config, DefaultType)
     return config
   }
 

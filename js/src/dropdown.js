@@ -16,8 +16,7 @@ import {
   isElement,
   isRTL,
   isVisible,
-  noop,
-  typeCheckConfig
+  noop
 } from './util/index'
 import EventHandler from './dom/event-handler'
 import Manipulator from './dom/manipulator'
@@ -96,10 +95,9 @@ const DefaultType = {
 
 class Dropdown extends BaseComponent {
   constructor(element, config) {
-    super(element)
+    super(element, config)
 
     this._popper = null
-    this._config = this._getConfig(config)
     this._menu = this._getMenuElement()
     this._inNavbar = this._detectNavbar()
   }
@@ -220,13 +218,7 @@ class Dropdown extends BaseComponent {
   }
 
   _getConfig(config) {
-    config = {
-      ...this.constructor.Default,
-      ...Manipulator.getDataAttributes(this._element),
-      ...config
-    }
-
-    typeCheckConfig(NAME, config, this.constructor.DefaultType)
+    config = super._getConfig(config)
 
     if (typeof config.reference === 'object' && !isElement(config.reference) &&
       typeof config.reference.getBoundingClientRect !== 'function'

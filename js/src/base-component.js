@@ -11,6 +11,7 @@ import {
   getElement
 } from './util/index'
 import EventHandler from './dom/event-handler'
+import Config from './util/config'
 
 /**
  * ------------------------------------------------------------------------
@@ -20,15 +21,17 @@ import EventHandler from './dom/event-handler'
 
 const VERSION = '5.1.2'
 
-class BaseComponent {
-  constructor(element) {
+class BaseComponent extends Config {
+  constructor(element, config) {
     element = getElement(element)
-
+    super()
     if (!element) {
       return
     }
 
     this._element = element
+    this._config = this._getConfig(config)
+
     Data.set(this._element, this.constructor.DATA_KEY, this)
   }
 
@@ -43,6 +46,13 @@ class BaseComponent {
 
   _queueCallback(callback, element, isAnimated = true) {
     executeAfterTransition(callback, element, isAnimated)
+  }
+
+  _getConfig(config) {
+    config = this._mergeConfigObj(config, this._element)
+    config = this._configAfterMerge(config)
+    this._typeCheckConfig(config)
+    return config
   }
 
   /** Static */

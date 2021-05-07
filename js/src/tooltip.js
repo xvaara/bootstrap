@@ -14,8 +14,7 @@ import {
   getUID,
   isElement,
   isRTL,
-  noop,
-  typeCheckConfig
+  noop
 } from './util/index'
 import { DefaultAllowlist, sanitizeHtml } from './util/sanitizer'
 import Data from './dom/data'
@@ -656,11 +655,16 @@ class Tooltip extends BaseComponent {
     }
 
     config = {
-      ...this.constructor.Default,
       ...dataAttributes,
       ...(typeof config === 'object' && config ? config : {})
     }
+    config = this._mergeConfigObj(config)
+    config = this._configAfterMerge(config)
+    this._typeCheckConfig(config)
+    return config
+  }
 
+  _configAfterMerge(config) {
     config.container = config.container === false ? document.body : getElement(config.container)
 
     if (typeof config.delay === 'number') {
@@ -677,8 +681,6 @@ class Tooltip extends BaseComponent {
     if (typeof config.content === 'number') {
       config.content = config.content.toString()
     }
-
-    typeCheckConfig(NAME, config, this.constructor.DefaultType)
 
     if (config.sanitize) {
       config.template = sanitizeHtml(config.template, config.allowList, config.sanitizeFn)

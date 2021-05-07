@@ -12,8 +12,7 @@ import {
   isVisible,
   getNextActiveElement,
   reflow,
-  triggerTransitionEnd,
-  typeCheckConfig
+  triggerTransitionEnd
 } from './util/index'
 import EventHandler from './dom/event-handler'
 import Manipulator from './dom/manipulator'
@@ -107,7 +106,7 @@ const POINTER_TYPE_PEN = 'pen'
  */
 class Carousel extends BaseComponent {
   constructor(element, config) {
-    super(element)
+    super(element, config)
 
     this._items = null
     this._interval = null
@@ -118,7 +117,6 @@ class Carousel extends BaseComponent {
     this.touchStartX = 0
     this.touchDeltaX = 0
 
-    this._config = this._getConfig(config)
     this._indicatorsElement = SelectorEngine.findOne(SELECTOR_INDICATORS, this._element)
     this._touchSupported = 'ontouchstart' in document.documentElement || navigator.maxTouchPoints > 0
     this._pointerEvent = Boolean(window.PointerEvent)
@@ -216,14 +214,8 @@ class Carousel extends BaseComponent {
 
   // Private
 
-  _getConfig(config) {
-    config = {
-      ...Default,
-      ...Manipulator.getDataAttributes(this._element),
-      ...(typeof config === 'object' ? config : {})
-    }
-    typeCheckConfig(NAME, config, DefaultType)
-    return config
+  _getConfigDefaultType() {
+    return DefaultType
   }
 
   _handleSwipe() {
