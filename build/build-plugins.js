@@ -16,19 +16,18 @@ const { babel } = require('@rollup/plugin-babel')
 const banner = require('./banner.js')
 
 const srcPath = path.resolve(__dirname, '../js/src/')
-
-const paths = glob.sync(srcPath + '/**/*.js')
+const paths = glob.sync(srcPath + '/**/*.js') // path.posix.normalize(srcPath)
+const resolved = {} //
 
 function filenameToEntity(filename) {
   return filename.replace(/(?:^|-)[a-z]/g, char => char.slice(-1).toUpperCase())
 }
 
-const resolved = {}
 for (const filePath of paths) {
   resolved[filenameToEntity(path.basename(filePath, '.js'))] = {
     src: filePath.replace('.js', ''),
     dist: filePath.replace('src', 'dist'),
-    name: filePath.replace(`${srcPath}/`, '')
+    name: path.relative(srcPath, filePath)
   }
 }
 
@@ -42,32 +41,33 @@ const plugins = [
 ]
 
 const build = async pluginKey => {
-  console.log(`Building ${pluginKey} plugin...`)
   const plugin = resolved[pluginKey]
-
   const globals = {}
+
   const bundle = await rollup.rollup({
     input: plugin.src,
     plugins,
     external: source => {
-      const pattern = /^(\.+)\// // replace starting with ./ or ../
+      // replace starting with ./ or ../
+      const pattern = /^(\.+)\//
 
-      if (!pattern.test(source)) { // is probably a node plugin
+      // is probably a node plugin
+      if (!pattern.test(source)) {
         globals[source] = source
         return true
       }
 
       // eslint-disable-next-line no-unused-vars
-      const usedPlugin = Object.entries(resolved).find(([key, path]) => {
-        return path.src.includes(source.replace(pattern, ''))
+      const usedPlugin = Object.entries(resolved).find(([key, p]) => {
+        return p.src.includes(source.replace(pattern, ''))
       })
 
       if (!usedPlugin) {
-        console.warn(`Source ${source} is not mapped`)
+        console.warn(`Source ${source} is not mapped`) // Shouldn't we throw here?
         return false
       }
 
-      globals[usedPlugin[1].src] = usedPlugin[0]
+      globals[path.normalize(usedPlugin[1].src)] = usedPlugin[0]
       return true
     }
   })
@@ -82,16 +82,22 @@ const build = async pluginKey => {
     file: plugin.dist
   })
 
-  console.log(`Building ${pluginKey} plugin... Done!`)
+  console.log(`Built ${pluginKey}`)
 }
 
-const main = () => {
+(async () => {
   try {
-    Promise.all(Object.keys(resolved).map(plugin => build(plugin)))
+    const basename = path.basename(__filename)
+    const timeLabel = `[${basename}] finished`
+
+    console.log('Building individual plugins...')
+    console.time(timeLabel)
+
+    await Promise.all(Object.keys(resolved).map(plugin => build(plugin)))
+
+    console.timeEnd(timeLabel)
   } catch (error) {
     console.error(error)
     process.exit(1)
   }
-}
-
-main()
+})()
