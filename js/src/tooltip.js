@@ -107,6 +107,7 @@ const HOVER_STATE_SHOW = 'show'
 const HOVER_STATE_OUT = 'out'
 
 const SELECTOR_TOOLTIP_INNER = '.tooltip-inner'
+const SELECTOR_TOOLTIP_ARROW = '.tooltip-arrow'
 const SELECTOR_MODAL = `.${CLASS_NAME_MODAL}`
 
 const EVENT_MODAL_HIDE = 'hide.bs.modal'
@@ -232,14 +233,6 @@ class Tooltip extends BaseComponent {
 
     if (showEvent.defaultPrevented || !isInTheDom) {
       return
-    }
-
-    // A trick to recreate a tooltip in case a new title is given by using the NOT documented `data-bs-original-title`
-    // This will be removed later in favor of a `setContent` method
-    if (this.constructor.NAME === 'tooltip' && this.tip && this.getTitle() !== this.tip.querySelector(SELECTOR_TOOLTIP_INNER).innerHTML) {
-      this._disposePopper()
-      this.tip.remove()
-      this.tip = null
     }
 
     const tip = this.getTipElement()
@@ -373,7 +366,19 @@ class Tooltip extends BaseComponent {
   }
 
   setContent(content) {
+    let isShown = false
+    if (this.tip) {
+      isShown = this.tip.classList.contains(CLASS_NAME_SHOW)
+      this.tip.remove()
+    }
+
+    this._disposePopper()
+
     this.tip = this._getTemplateFactory(content).toHtml()
+
+    if (isShown) {
+      this.show()
+    }
   }
 
   _getTemplateFactory(content) {
@@ -398,9 +403,7 @@ class Tooltip extends BaseComponent {
   }
 
   getTitle() {
-    const title = this._element.getAttribute('data-bs-original-title') || this._config.title
-
-    return this._resolvePossibleFunction(title)
+    return this._resolvePossibleFunction(this._config.title) || this._element.getAttribute('title')
   }
 
   updateAttachment(attachment) {
@@ -464,7 +467,7 @@ class Tooltip extends BaseComponent {
         {
           name: 'arrow',
           options: {
-            element: `.${this.constructor.NAME}-arrow`
+            element: SELECTOR_TOOLTIP_ARROW
           }
         },
         {
@@ -535,15 +538,9 @@ class Tooltip extends BaseComponent {
 
   _fixTitle() {
     const title = this._element.getAttribute('title')
-    const originalTitleType = typeof this._element.getAttribute('data-bs-original-title')
 
-    if (title || originalTitleType !== 'string') {
-      this._element.setAttribute('data-bs-original-title', title || '')
-      if (title && !this._element.getAttribute('aria-label') && !this._element.textContent) {
-        this._element.setAttribute('aria-label', title)
-      }
-
-      this._element.setAttribute('title', '')
+    if (title && !this._element.getAttribute('aria-label') && !this._element.textContent) {
+      this._element.setAttribute('aria-label', title)
     }
   }
 
