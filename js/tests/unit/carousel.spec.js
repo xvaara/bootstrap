@@ -1153,6 +1153,7 @@ describe('Carousel', () => {
       })
     })
   })
+
   describe('rtl function', () => {
     it('"_directionToOrder" and "_orderToDirection" must return the right results', () => {
       fixtureEl.innerHTML = '<div></div>'

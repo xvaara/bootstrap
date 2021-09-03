@@ -156,6 +156,7 @@ describe('Offcanvas', () => {
       expect(offCanvas._config.scroll).toEqual(false)
     })
   })
+
   describe('options', () => {
     it('if scroll is enabled, should allow body to scroll while offcanvas is open', done => {
       fixtureEl.innerHTML = '<div class="offcanvas"></div>'
