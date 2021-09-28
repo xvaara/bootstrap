@@ -1,7 +1,7 @@
 import Manipulator from '../../../src/dom/manipulator'
 
 /** Test helpers */
-import { getFixture, clearFixture } from '../../helpers/fixture'
+import { clearFixture, getFixture } from '../../helpers/fixture'
 
 describe('Manipulator', () => {
   let fixtureEl
@@ -94,7 +94,7 @@ describe('Manipulator', () => {
     })
 
     it('should normalize data', () => {
-      fixtureEl.innerHTML = '<div data-bs-test="false" ></div>'
+      fixtureEl.innerHTML = '<div data-bs-test="false" data-bs-test2=\'{"delay":{"show":100,"hide":10}}\'></div>'
 
       const div = fixtureEl.querySelector('div')
 
@@ -103,8 +103,15 @@ describe('Manipulator', () => {
       div.setAttribute('data-bs-test', 'true')
       expect(Manipulator.getDataAttribute(div, 'test')).toEqual(true)
 
-      div.setAttribute('data-bs-test', '1')
-      expect(Manipulator.getDataAttribute(div, 'test')).toEqual(1)
+      const objectData = { 'Super Hero': ['Iron Man', 'Super Man'], url: 'http://localhost:8080/test?foo=bar' }
+      const dataStr = JSON.stringify(objectData)
+      div.setAttribute('data-bs-test', encodeURIComponent(dataStr))
+      expect(Manipulator.getDataAttribute(div, 'test')).toEqual(objectData)
+
+      div.setAttribute('data-bs-test', dataStr)
+      expect(Manipulator.getDataAttribute(div, 'test')).toEqual(objectData)
+
+      expect(Manipulator.getDataAttribute(div, 'test2')).toEqual({ delay: { show: 100, hide: 10 } })
     })
   })
 
