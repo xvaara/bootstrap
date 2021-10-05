@@ -51,6 +51,8 @@
       "error",
       "never"
     ],
+    "ssr-friendly/no-dom-globals-in-react-cc-render": "off",
+    "ssr-friendly/no-dom-globals-in-react-fc": "off",
     "unicorn/explicit-length-check": "off",
     "unicorn/no-array-callback-reference": "off",
     "unicorn/no-array-method-this-argument": "off",
@@ -61,8 +63,6 @@
     "unicorn/prefer-module": "off",
     "unicorn/prefer-query-selector": "off",
     "unicorn/prefer-spread": "off",
-    "unicorn/prevent-abbreviations": "off",
-    "ssr-friendly/no-dom-globals-in-react-cc-render": "off",
-    "ssr-friendly/no-dom-globals-in-react-fc": "off"
+    "unicorn/prevent-abbreviations": "off"
   }
 }
