@@ -4,10 +4,10 @@
   "extends": [
     "plugin:import/errors",
     "plugin:import/warnings",
+    "plugin:ssr-friendly/recommended",
     "plugin:unicorn/recommended",
     "xo",
-    "xo/browser",
-    "plugin:ssr-friendly/recommended"
+    "xo/browser"
   ],
   "rules": {
     "arrow-body-style": "off",
