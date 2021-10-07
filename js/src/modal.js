@@ -207,8 +207,8 @@ class Modal extends BaseComponent {
   }
 
   _showElement(relatedTarget) {
-    if (!this._element.parentNode || this._element.parentNode.nodeType !== Node.ELEMENT_NODE) {
-      // Don't move modal's DOM position
+    // try to append dynamic modal
+    if (!document.body.contains(this._element)) {
       document.body.append(this._element)
     }
 
