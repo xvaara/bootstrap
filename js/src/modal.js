@@ -126,8 +126,8 @@ class Modal extends BaseComponent {
 
     this._adjustDialog()
 
-    this._setEscapeEvent()
-    this._setResizeEvent()
+    this._toggleEscapeEventListener(true)
+    this._toggleResizeEventListener(true)
 
     EventHandler.on(this._dialog, EVENT_MOUSEDOWN_DISMISS, () => {
       EventHandler.one(this._element, EVENT_MOUSEUP_DISMISS, event => {
@@ -154,8 +154,8 @@ class Modal extends BaseComponent {
     this._isShown = false
     this._isTransitioning = true
 
-    this._setEscapeEvent()
-    this._setResizeEvent()
+    this._toggleEscapeEventListener(false)
+    this._toggleResizeEventListener(false)
 
     this._focustrap.deactivate()
 
@@ -241,8 +241,8 @@ class Modal extends BaseComponent {
     this._queueCallback(transitionComplete, this._dialog, this._isAnimated())
   }
 
-  _setEscapeEvent() {
-    if (!this._isShown) {
+  _toggleEscapeEventListener(enable) {
+    if (!enable) {
       EventHandler.off(this._element, EVENT_KEYDOWN_DISMISS)
       return
     }
@@ -262,8 +262,8 @@ class Modal extends BaseComponent {
     })
   }
 
-  _setResizeEvent() {
-    if (this._isShown) {
+  _toggleResizeEventListener(enable) {
+    if (enable) {
       EventHandler.on(window, EVENT_RESIZE, () => this._adjustDialog())
       return
     }
