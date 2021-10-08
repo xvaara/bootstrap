@@ -273,11 +273,7 @@ class Modal extends BaseComponent {
   }
 
   _showBackdrop(callback) {
-    EventHandler.on(this._element, EVENT_CLICK_DISMISS, event => {
-      if (event.target !== event.currentTarget) {
-        return
-      }
-
+    EventHandler.on(this._element, EVENT_CLICK_DISMISS, () => {
       if (this._config.backdrop === true) {
         this.hide()
       } else if (this._config.backdrop === 'static') {
