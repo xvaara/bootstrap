@@ -326,12 +326,16 @@ class Modal extends BaseComponent {
     const scrollbarWidth = this._scrollBar.getWidth()
     const isBodyOverflowing = scrollbarWidth > 0
 
-    if ((!isBodyOverflowing && isModalOverflowing && !isRTL()) || (isBodyOverflowing && !isModalOverflowing && isRTL())) {
-      this._element.style.paddingLeft = `${scrollbarWidth}px`
+    const adjustPadding = property => {
+      this._element.style[property] = `${scrollbarWidth}px`
     }
 
-    if ((isBodyOverflowing && !isModalOverflowing && !isRTL()) || (!isBodyOverflowing && isModalOverflowing && isRTL())) {
-      this._element.style.paddingRight = `${scrollbarWidth}px`
+    if (isBodyOverflowing && !isModalOverflowing) {
+      adjustPadding(isRTL() ? 'paddingLeft' : 'paddingRight')
+    }
+
+    if (!isBodyOverflowing && isModalOverflowing) {
+      adjustPadding(isRTL() ? 'paddingRight' : 'paddingLeft')
     }
   }
 
