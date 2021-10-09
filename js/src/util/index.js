@@ -297,7 +297,7 @@ const getNextActiveElement = (list, activeElement, shouldGetNext, isCycleAllowed
 
   // if the element does not exist in the list return an element depending on the direction and if cycle is allowed
   if (index === -1) {
-    return list[!shouldGetNext && isCycleAllowed ? list.length - 1 : 0]
+    return !shouldGetNext && isCycleAllowed ? list[list.length - 1] : list[0]
   }
 
   const listLength = list.length
@@ -312,24 +312,24 @@ const getNextActiveElement = (list, activeElement, shouldGetNext, isCycleAllowed
 }
 
 export {
-  getElement,
-  getUID,
-  getSelectorFromElement,
-  getElementFromSelector,
-  getTransitionDurationFromElement,
-  triggerTransitionEnd,
-  isElement,
-  typeCheckConfig,
-  isVisible,
-  isDisabled,
-  findShadowRoot,
-  noop,
-  getNextActiveElement,
-  reflow,
-  getjQuery,
-  onDOMContentLoaded,
-  isRTL,
   defineJQueryPlugin,
   execute,
-  executeAfterTransition
+  executeAfterTransition,
+  findShadowRoot,
+  getElement,
+  getElementFromSelector,
+  getjQuery,
+  getNextActiveElement,
+  getSelectorFromElement,
+  getTransitionDurationFromElement,
+  getUID,
+  isDisabled,
+  isElement,
+  isRTL,
+  isVisible,
+  noop,
+  onDOMContentLoaded,
+  reflow,
+  triggerTransitionEnd,
+  typeCheckConfig
 }
