@@ -125,7 +125,7 @@ class Offcanvas extends BaseComponent {
       EventHandler.trigger(this._element, EVENT_SHOWN, { relatedTarget })
     }
 
-    this._queueCallback(completeCallBack, this._element, true)
+    this.queueCallback(completeCallBack, this._element, true)
   }
 
   hide() {
@@ -158,7 +158,7 @@ class Offcanvas extends BaseComponent {
       EventHandler.trigger(this._element, EVENT_HIDDEN)
     }
 
-    this._queueCallback(completeCallback, this._element, true)
+    this.queueCallback(completeCallback, this._element, true)
   }
 
   dispose() {

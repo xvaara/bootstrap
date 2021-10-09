@@ -41,7 +41,7 @@ class BaseComponent {
     }
   }
 
-  _queueCallback(callback, element, isAnimated = true) {
+  queueCallback(callback, element, isAnimated = true) {
     executeAfterTransition(callback, element, isAnimated)
   }
 
