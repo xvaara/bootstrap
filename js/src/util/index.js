@@ -7,7 +7,6 @@
 
 const MAX_UID = 1_000_000
 const MILLISECONDS_MULTIPLIER = 1000
-const TRANSITION_END = 'transitionend'
 
 // Shoutout AngusCroll (https://goo.gl/pxwQGp)
 const toType = obj => {
@@ -97,7 +96,7 @@ const getTransitionDurationFromElement = element => {
 }
 
 const triggerTransitionEnd = element => {
-  element.dispatchEvent(new Event(TRANSITION_END))
+  element.dispatchEvent(new Event('transitionend'))
 }
 
 const isElement = obj => {
@@ -271,11 +270,11 @@ const executeAfterTransition = (callback, transitionElement, waitForTransition =
     }
 
     called = true
-    transitionElement.removeEventListener(TRANSITION_END, handler)
+    transitionElement.removeEventListener('transitionend', handler)
     execute(callback)
   }
 
-  transitionElement.addEventListener(TRANSITION_END, handler)
+  transitionElement.addEventListener('transitionend', handler)
   setTimeout(() => {
     if (!called) {
       triggerTransitionEnd(transitionElement)
