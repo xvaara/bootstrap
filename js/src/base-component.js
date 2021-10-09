@@ -60,7 +60,7 @@ class BaseComponent {
   }
 
   static get NAME() {
-    throw new Error('You have to implement the static method "NAME", for each component!')
+    throw new Error('You have to implement the static method "NAME" for each component!')
   }
 
   static get DATA_KEY() {
