@@ -78,9 +78,7 @@ class Tab extends BaseComponent {
     }
 
     const hideEvent = previous ?
-      EventHandler.trigger(previous, EVENT_HIDE, {
-        relatedTarget: this._element
-      }) :
+      EventHandler.trigger(previous, EVENT_HIDE, { relatedTarget: this._element }) :
       null
 
     const showEvent = EventHandler.trigger(this._element, EVENT_SHOW, {
@@ -94,12 +92,8 @@ class Tab extends BaseComponent {
     this._activate(this._element, listElement)
 
     const complete = () => {
-      EventHandler.trigger(previous, EVENT_HIDDEN, {
-        relatedTarget: this._element
-      })
-      EventHandler.trigger(this._element, EVENT_SHOWN, {
-        relatedTarget: previous
-      })
+      EventHandler.trigger(previous, EVENT_HIDDEN, { relatedTarget: this._element })
+      EventHandler.trigger(this._element, EVENT_SHOWN, { relatedTarget: previous })
     }
 
     if (target) {
