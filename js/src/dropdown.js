@@ -139,7 +139,7 @@ class Dropdown extends BaseComponent {
       return
     }
 
-    const parent = Dropdown.getParentFromElement(this._element)
+    const parent = getElementFromSelector(this._element) || this._element.parentNode
     // Totally disable Popper for Dropdowns in Navbar
     if (this._inNavbar) {
       Manipulator.setDataAttribute(this._menu, 'popper', 'none')
@@ -415,10 +415,6 @@ class Dropdown extends BaseComponent {
 
       context._completeHide(relatedTarget)
     }
-  }
-
-  static getParentFromElement(element) {
-    return getElementFromSelector(element) || element.parentNode
   }
 
   static dataApiKeydownHandler(event) {
