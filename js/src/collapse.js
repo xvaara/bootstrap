@@ -13,7 +13,6 @@ import {
   reflow,
   typeCheckConfig
 } from './util/index'
-import Data from './dom/data'
 import EventHandler from './dom/event-handler'
 import Manipulator from './dom/manipulator'
 import SelectorEngine from './dom/selector-engine'
@@ -81,7 +80,6 @@ class Collapse extends BaseComponent {
         .filter(foundElem => foundElem === this._element)
 
       if (selector !== null && filterElement.length) {
-        this._selector = selector
         this._triggerArray.push(elem)
       }
     }
@@ -123,20 +121,15 @@ class Collapse extends BaseComponent {
     }
 
     let actives = []
-    let activesData
 
-    if (this._config.parent) {
+    if (this._config.parent) { // find active children
       actives = this._getFirstLevelChildren(SELECTOR_ACTIVES)
+        .filter(el => el !== this._element)
+        .map(el => Collapse.getOrCreateInstance(el, { toggle: false }))
     }
 
-    const container = SelectorEngine.findOne(this._selector)
-    if (actives.length) {
-      const tempActiveData = actives.find(elem => container !== elem)
-      activesData = tempActiveData ? Collapse.getInstance(tempActiveData) : null
-
-      if (activesData && activesData._isTransitioning) {
-        return
-      }
+    if (actives.length && actives[0]._isTransitioning) {
+      return
     }
 
     const startEvent = EventHandler.trigger(this._element, EVENT_SHOW)
@@ -145,13 +138,7 @@ class Collapse extends BaseComponent {
     }
 
     for (const elemActive of actives) {
-      if (container !== elemActive) {
-        Collapse.getOrCreateInstance(elemActive, { toggle: false }).hide()
-      }
-
-      if (!activesData) {
-        Data.set(elemActive, DATA_KEY, null)
-      }
+      elemActive.hide()
     }
 
     const dimension = this._getDimension()
