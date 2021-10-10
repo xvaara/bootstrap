@@ -120,15 +120,15 @@ class Collapse extends BaseComponent {
       return
     }
 
-    let actives = []
+    let activeChildren = []
 
     if (this._config.parent) { // find active children
-      actives = this._getFirstLevelChildren(SELECTOR_ACTIVES)
+      activeChildren = this._getFirstLevelChildren(SELECTOR_ACTIVES)
         .filter(el => el !== this._element)
         .map(el => Collapse.getOrCreateInstance(el, { toggle: false }))
     }
 
-    if (actives.length && actives[0]._isTransitioning) {
+    if (activeChildren.length && activeChildren[0]._isTransitioning) {
       return
     }
 
@@ -137,8 +137,8 @@ class Collapse extends BaseComponent {
       return
     }
 
-    for (const elemActive of actives) {
-      elemActive.hide()
+    for (const activeInstance of activeChildren) {
+      activeInstance.hide()
     }
 
     const dimension = this._getDimension()
