@@ -34,18 +34,6 @@ const DATA_API_KEY = '.data-api'
 const EVENT_LOAD_DATA_API = `load${EVENT_KEY}${DATA_API_KEY}`
 const ESCAPE_KEY = 'Escape'
 
-const Default = {
-  backdrop: true,
-  keyboard: true,
-  scroll: false
-}
-
-const DefaultType = {
-  backdrop: 'boolean',
-  keyboard: 'boolean',
-  scroll: 'boolean'
-}
-
 const CLASS_NAME_SHOW = 'show'
 const CLASS_NAME_BACKDROP = 'offcanvas-backdrop'
 const OPEN_SELECTOR = '.offcanvas.show'
@@ -58,6 +46,18 @@ const EVENT_CLICK_DATA_API = `click${EVENT_KEY}${DATA_API_KEY}`
 const EVENT_KEYDOWN_DISMISS = `keydown.dismiss${EVENT_KEY}`
 
 const SELECTOR_DATA_TOGGLE = '[data-bs-toggle="offcanvas"]'
+
+const Default = {
+  backdrop: true,
+  keyboard: true,
+  scroll: false
+}
+
+const DefaultType = {
+  backdrop: 'boolean',
+  keyboard: 'boolean',
+  scroll: 'boolean'
+}
 
 /**
  * ------------------------------------------------------------------------
@@ -77,7 +77,6 @@ class Offcanvas extends BaseComponent {
   }
 
   // Getters
-
   static get NAME() {
     return NAME
   }
@@ -87,7 +86,6 @@ class Offcanvas extends BaseComponent {
   }
 
   // Public
-
   toggle(relatedTarget) {
     return this._isShown ? this.hide() : this.show(relatedTarget)
   }
@@ -168,7 +166,6 @@ class Offcanvas extends BaseComponent {
   }
 
   // Private
-
   _getConfig(config) {
     config = {
       ...Default,
@@ -204,7 +201,6 @@ class Offcanvas extends BaseComponent {
   }
 
   // Static
-
   static jQueryInterface(config) {
     return this.each(function () {
       const data = Offcanvas.getOrCreateInstance(this, config)
@@ -224,7 +220,7 @@ class Offcanvas extends BaseComponent {
 
 /**
  * ------------------------------------------------------------------------
- * Data Api implementation
+ * Data API implementation
  * ------------------------------------------------------------------------
  */
 
@@ -240,13 +236,13 @@ EventHandler.on(document, EVENT_CLICK_DATA_API, SELECTOR_DATA_TOGGLE, function (
   }
 
   EventHandler.one(target, EVENT_HIDDEN, () => {
-    // focus on trigger when it is closed
+    // Focus on trigger when it is closed
     if (isVisible(this)) {
       this.focus()
     }
   })
 
-  // avoid conflict when clicking a toggler of an offcanvas, while another is open
+  // Avoid conflict when clicking a toggler of an offcanvas, while another is open
   const alreadyOpen = SelectorEngine.findOne(OPEN_SELECTOR)
   if (alreadyOpen && alreadyOpen !== target) {
     Offcanvas.getInstance(alreadyOpen).hide()
@@ -263,10 +259,12 @@ EventHandler.on(window, EVENT_LOAD_DATA_API, () => {
 })
 
 enableDismissTrigger(Offcanvas)
+
 /**
  * ------------------------------------------------------------------------
  * jQuery
  * ------------------------------------------------------------------------
+  * Add .Offcanvas to jQuery only if jQuery is present
  */
 
 defineJQueryPlugin(Offcanvas)

@@ -36,33 +36,10 @@ const ARROW_RIGHT_KEY = 'ArrowRight'
 const TOUCHEVENT_COMPAT_WAIT = 500 // Time for mouse compat events to fire after touch
 const SWIPE_THRESHOLD = 40
 
-const Default = {
-  interval: 5000,
-  keyboard: true,
-  slide: false,
-  pause: 'hover',
-  wrap: true,
-  touch: true
-}
-
-const DefaultType = {
-  interval: '(number|boolean)',
-  keyboard: 'boolean',
-  slide: '(boolean|string)',
-  pause: '(string|boolean)',
-  wrap: 'boolean',
-  touch: 'boolean'
-}
-
 const ORDER_NEXT = 'next'
 const ORDER_PREV = 'prev'
 const DIRECTION_LEFT = 'left'
 const DIRECTION_RIGHT = 'right'
-
-const KEY_TO_DIRECTION = {
-  [ARROW_LEFT_KEY]: DIRECTION_RIGHT,
-  [ARROW_RIGHT_KEY]: DIRECTION_LEFT
-}
 
 const EVENT_SLIDE = `slide${EVENT_KEY}`
 const EVENT_SLID = `slid${EVENT_KEY}`
@@ -100,6 +77,29 @@ const SELECTOR_DATA_RIDE = '[data-bs-ride="carousel"]'
 const POINTER_TYPE_TOUCH = 'touch'
 const POINTER_TYPE_PEN = 'pen'
 
+const KEY_TO_DIRECTION = {
+  [ARROW_LEFT_KEY]: DIRECTION_RIGHT,
+  [ARROW_RIGHT_KEY]: DIRECTION_LEFT
+}
+
+const Default = {
+  interval: 5000,
+  keyboard: true,
+  slide: false,
+  pause: 'hover',
+  wrap: true,
+  touch: true
+}
+
+const DefaultType = {
+  interval: '(number|boolean)',
+  keyboard: 'boolean',
+  slide: '(boolean|string)',
+  pause: '(string|boolean)',
+  wrap: 'boolean',
+  touch: 'boolean'
+}
+
 /**
  * ------------------------------------------------------------------------
  * Class Definition
@@ -127,7 +127,6 @@ class Carousel extends BaseComponent {
   }
 
   // Getters
-
   static get Default() {
     return Default
   }
@@ -137,7 +136,6 @@ class Carousel extends BaseComponent {
   }
 
   // Public
-
   next() {
     this._slide(ORDER_NEXT)
   }
@@ -215,7 +213,6 @@ class Carousel extends BaseComponent {
   }
 
   // Private
-
   _getConfig(config) {
     config = {
       ...Default,
@@ -502,7 +499,6 @@ class Carousel extends BaseComponent {
   }
 
   // Static
-
   static carouselInterface(element, config) {
     const data = Carousel.getOrCreateInstance(element, config)
 
@@ -565,7 +561,7 @@ class Carousel extends BaseComponent {
 
 /**
  * ------------------------------------------------------------------------
- * Data Api implementation
+ * Data API implementation
  * ------------------------------------------------------------------------
  */
 
@@ -583,7 +579,7 @@ EventHandler.on(window, EVENT_LOAD_DATA_API, () => {
  * ------------------------------------------------------------------------
  * jQuery
  * ------------------------------------------------------------------------
- * add .Carousel to jQuery only if jQuery is present
+ * Add .Carousel to jQuery only if jQuery is present
  */
 
 defineJQueryPlugin(Carousel)

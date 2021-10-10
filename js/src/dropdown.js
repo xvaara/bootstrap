@@ -105,7 +105,6 @@ class Dropdown extends BaseComponent {
   }
 
   // Getters
-
   static get Default() {
     return Default
   }
@@ -119,7 +118,6 @@ class Dropdown extends BaseComponent {
   }
 
   // Public
-
   toggle() {
     return this._isShown() ? this.hide() : this.show()
   }
@@ -193,7 +191,6 @@ class Dropdown extends BaseComponent {
   }
 
   // Private
-
   _completeHide(relatedTarget) {
     const hideEvent = EventHandler.trigger(this._element, EVENT_HIDE, relatedTarget)
     if (hideEvent.defaultPrevented) {
@@ -354,7 +351,6 @@ class Dropdown extends BaseComponent {
   }
 
   // Static
-
   static jQueryInterface(config) {
     return this.each(function () {
       const data = Dropdown.getOrCreateInstance(this, config)
@@ -475,7 +471,7 @@ class Dropdown extends BaseComponent {
 
 /**
  * ------------------------------------------------------------------------
- * Data Api implementation
+ * Data API implementation
  * ------------------------------------------------------------------------
  */
 
@@ -492,7 +488,7 @@ EventHandler.on(document, EVENT_CLICK_DATA_API, SELECTOR_DATA_TOGGLE, function (
  * ------------------------------------------------------------------------
  * jQuery
  * ------------------------------------------------------------------------
- * add .Dropdown to jQuery only if jQuery is present
+ * Add .Dropdown to jQuery only if jQuery is present
  */
 
 defineJQueryPlugin(Dropdown)

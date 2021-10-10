@@ -34,18 +34,6 @@ const EVENT_KEY = `.${DATA_KEY}`
 const DATA_API_KEY = '.data-api'
 const ESCAPE_KEY = 'Escape'
 
-const Default = {
-  backdrop: true,
-  keyboard: true,
-  focus: true
-}
-
-const DefaultType = {
-  backdrop: '(boolean|string)',
-  keyboard: 'boolean',
-  focus: 'boolean'
-}
-
 const EVENT_HIDE = `hide${EVENT_KEY}`
 const EVENT_HIDE_PREVENTED = `hidePrevented${EVENT_KEY}`
 const EVENT_HIDDEN = `hidden${EVENT_KEY}`
@@ -68,6 +56,18 @@ const SELECTOR_DIALOG = '.modal-dialog'
 const SELECTOR_MODAL_BODY = '.modal-body'
 const SELECTOR_DATA_TOGGLE = '[data-bs-toggle="modal"]'
 
+const Default = {
+  backdrop: true,
+  keyboard: true,
+  focus: true
+}
+
+const DefaultType = {
+  backdrop: '(boolean|string)',
+  keyboard: 'boolean',
+  focus: 'boolean'
+}
+
 /**
  * ------------------------------------------------------------------------
  * Class Definition
@@ -89,7 +89,6 @@ class Modal extends BaseComponent {
   }
 
   // Getters
-
   static get Default() {
     return Default
   }
@@ -99,7 +98,6 @@ class Modal extends BaseComponent {
   }
 
   // Public
-
   toggle(relatedTarget) {
     return this._isShown ? this.hide() : this.show(relatedTarget)
   }
@@ -189,7 +187,6 @@ class Modal extends BaseComponent {
   }
 
   // Private
-
   _initializeBackDrop() {
     return new Backdrop({
       isVisible: Boolean(this._config.backdrop), // 'static' option will be translated to true, and booleans will keep their value
@@ -345,7 +342,7 @@ class Modal extends BaseComponent {
   }
 
   // ----------------------------------------------------------------------
-  // the following methods are used to handle overflowing modals
+  // The following methods are used to handle overflowing modals
   // ----------------------------------------------------------------------
 
   _adjustDialog() {
@@ -368,7 +365,6 @@ class Modal extends BaseComponent {
   }
 
   // Static
-
   static jQueryInterface(config, relatedTarget) {
     return this.each(function () {
       const data = Modal.getOrCreateInstance(this, config)
@@ -388,7 +384,7 @@ class Modal extends BaseComponent {
 
 /**
  * ------------------------------------------------------------------------
- * Data Api implementation
+ * Data API implementation
  * ------------------------------------------------------------------------
  */
 
@@ -401,7 +397,7 @@ EventHandler.on(document, EVENT_CLICK_DATA_API, SELECTOR_DATA_TOGGLE, function (
 
   EventHandler.one(target, EVENT_SHOW, showEvent => {
     if (showEvent.defaultPrevented) {
-      // only register focus restorer if modal will actually get shown
+      // Only register focus restorer if modal will actually get shown
       return
     }
 
@@ -412,7 +408,7 @@ EventHandler.on(document, EVENT_CLICK_DATA_API, SELECTOR_DATA_TOGGLE, function (
     })
   })
 
-  // avoid conflict when clicking moddal toggler while another one is open
+  // Avoid conflict when clicking moddal toggler while another one is open
   const allReadyOpen = SelectorEngine.findOne(OPEN_SELECTOR)
   if (allReadyOpen) {
     Modal.getInstance(allReadyOpen).hide()
@@ -429,7 +425,7 @@ enableDismissTrigger(Modal)
  * ------------------------------------------------------------------------
  * jQuery
  * ------------------------------------------------------------------------
- * add .Modal to jQuery only if jQuery is present
+ * Add .Modal to jQuery only if jQuery is present
  */
 
 defineJQueryPlugin(Modal)

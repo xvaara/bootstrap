@@ -53,13 +53,11 @@ const SELECTOR_DROPDOWN_ACTIVE_CHILD = ':scope > .dropdown-menu .active'
 
 class Tab extends BaseComponent {
   // Getters
-
   static get NAME() {
     return NAME
   }
 
   // Public
-
   show() {
     if ((this._element.parentNode &&
       this._element.parentNode.nodeType === Node.ELEMENT_NODE &&
@@ -104,7 +102,6 @@ class Tab extends BaseComponent {
   }
 
   // Private
-
   _activate(element, container, callback) {
     const activeElements = container && (container.nodeName === 'UL' || container.nodeName === 'OL') ?
       SelectorEngine.find(SELECTOR_ACTIVE_UL, container) :
@@ -172,7 +169,6 @@ class Tab extends BaseComponent {
   }
 
   // Static
-
   static jQueryInterface(config) {
     return this.each(function () {
       const data = Tab.getOrCreateInstance(this)
@@ -190,7 +186,7 @@ class Tab extends BaseComponent {
 
 /**
  * ------------------------------------------------------------------------
- * Data Api implementation
+ * Data API implementation
  * ------------------------------------------------------------------------
  */
 
@@ -211,7 +207,7 @@ EventHandler.on(document, EVENT_CLICK_DATA_API, SELECTOR_DATA_TOGGLE, function (
  * ------------------------------------------------------------------------
  * jQuery
  * ------------------------------------------------------------------------
- * add .Tab to jQuery only if jQuery is present
+ * Add .Tab to jQuery only if jQuery is present
  */
 
 defineJQueryPlugin(Tab)
