@@ -141,7 +141,7 @@ class Dropdown extends BaseComponent {
 
     const parent = getElementFromSelector(this._element) || this._element.parentNode
     // Totally disable Popper for Dropdowns in Navbar
-    if (this._inNavbar) {
+    if (this._inNavbar || this._config.display === 'static') {
       Manipulator.setDataAttribute(this._menu, 'popper', 'none')
     } else {
       this._createPopper(parent)
@@ -254,13 +254,7 @@ class Dropdown extends BaseComponent {
     }
 
     const popperConfig = this._getPopperConfig()
-    const isDisplayStatic = popperConfig.modifiers.find(modifier => modifier.name === 'applyStyles' && modifier.enabled === false)
-
     this._popper = Popper.createPopper(referenceElement, this._menu, popperConfig)
-
-    if (isDisplayStatic) {
-      Manipulator.setDataAttribute(this._menu, 'popper', 'static')
-    }
   }
 
   _isShown(element = this._element) {
@@ -324,14 +318,6 @@ class Dropdown extends BaseComponent {
         options: {
           offset: this._getOffset()
         }
-      }]
-    }
-
-    // Disable Popper if we have a static display
-    if (this._config.display === 'static') {
-      defaultBsPopperConfig.modifiers = [{
-        name: 'applyStyles',
-        enabled: false
       }]
     }
 

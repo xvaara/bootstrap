@@ -1171,33 +1171,6 @@ describe('Dropdown', () => {
       btnDropdown.click()
     })
 
-    it('should manage bs attribute `data-bs-popper`="static" when display set to static', done => {
-      fixtureEl.innerHTML = [
-        '<div class="dropdown">',
-        '  <button class="btn dropdown-toggle" data-bs-toggle="dropdown" data-bs-display="static">Dropdown</button>',
-        '  <div class="dropdown-menu">',
-        '    <a class="dropdown-item" href="#">Secondary link</a>',
-        '  </div>',
-        '</div>'
-      ].join('')
-
-      const btnDropdown = fixtureEl.querySelector('[data-bs-toggle="dropdown"]')
-      const dropdownMenu = fixtureEl.querySelector('.dropdown-menu')
-      const dropdown = new Dropdown(btnDropdown)
-
-      btnDropdown.addEventListener('shown.bs.dropdown', () => {
-        expect(dropdownMenu.getAttribute('data-bs-popper')).toEqual('static')
-        dropdown.hide()
-      })
-
-      btnDropdown.addEventListener('hidden.bs.dropdown', () => {
-        expect(dropdownMenu.getAttribute('data-bs-popper')).toBeNull()
-        done()
-      })
-
-      dropdown.show()
-    })
-
     it('should remove "show" class if tabbing outside of menu', done => {
       fixtureEl.innerHTML = [
         '<div class="dropdown">',
