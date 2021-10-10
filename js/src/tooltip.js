@@ -340,9 +340,9 @@ class Tooltip extends BaseComponent {
       }
     }
 
-    this._activeTrigger[TRIGGER_CLICK] = false
-    this._activeTrigger[TRIGGER_FOCUS] = false
-    this._activeTrigger[TRIGGER_HOVER] = false
+    // Set all triggers to false
+    this._activeTrigger[TRIGGER_CLICK] = // eslint-disable-next-line no-multi-assign
+      this._activeTrigger[TRIGGER_FOCUS] = this._activeTrigger[TRIGGER_HOVER] = false
 
     const isAnimated = this.tip.classList.contains(CLASS_NAME_FADE)
     this.queueCallback(complete, this.tip, isAnimated)
