@@ -28,7 +28,7 @@
       return `${obj}`;
     }
 
-    return {}.toString.call(obj).match(/\s([a-z]+)/i)[1].toLowerCase();
+    return Object.prototype.toString.call(obj).match(/\s([a-z]+)/i)[1].toLowerCase();
   };
 
   const getSelector = element => {
@@ -59,7 +59,7 @@
     const selector = getSelector(element);
 
     if (selector) {
-      return document.querySelector(selector) ? selector : null;
+      return getDocument().querySelector(selector) ? selector : null;
     }
 
     return null;
@@ -91,7 +91,7 @@
   };
 
   const typeCheckConfig = (componentName, config, configTypes) => {
-    Object.keys(configTypes).forEach(property => {
+    for (const property of Object.keys(configTypes)) {
       const expectedTypes = configTypes[property];
       const value = config[property];
       const valueType = value && isElement(value) ? 'element' : toType(value);
@@ -99,7 +99,7 @@
       if (!new RegExp(expectedTypes).test(valueType)) {
         throw new TypeError(`${componentName.toUpperCase()}: Option "${property}" provided type "${valueType}" but expected type "${expectedTypes}".`);
       }
-    });
+    }
   };
 
   const getjQuery = () => {
@@ -107,7 +107,7 @@
       jQuery
     } = window;
 
-    if (jQuery && !document.body.hasAttribute('data-bs-no-jquery')) {
+    if (jQuery && !getDocument().body.hasAttribute('data-bs-no-jquery')) {
       return jQuery;
     }
 
@@ -117,11 +117,13 @@
   const DOMContentLoadedCallbacks = [];
 
   const onDOMContentLoaded = callback => {
-    if (document.readyState === 'loading') {
+    if (getDocument().readyState === 'loading') {
       // add listener on the first call when the document is in loading state
       if (!DOMContentLoadedCallbacks.length) {
-        document.addEventListener('DOMContentLoaded', () => {
-          DOMContentLoadedCallbacks.forEach(callback => callback());
+        getDocument().addEventListener('DOMContentLoaded', () => {
+          for (const callback of DOMContentLoadedCallbacks) {
+            callback();
+          }
         });
       }
 
@@ -148,6 +150,14 @@
         };
       }
     });
+  };
+
+  const getWindow = () => {
+    return typeof window === 'undefined' ? {} : window;
+  };
+
+  const getDocument = () => {
+    return typeof document === 'undefined' ? {} : document;
   };
 
   /**
@@ -200,7 +210,7 @@
   class ScrollSpy extends BaseComponent__default.default {
     constructor(element, config) {
       super(element);
-      this._scrollElement = this._element.tagName === 'BODY' ? window : this._element;
+      this._scrollElement = this._element.tagName === 'BODY' ? this._window : this._element;
       this._config = this._getConfig(config);
       this._offsets = [];
       this._targets = [];
@@ -229,8 +239,7 @@
       this._offsets = [];
       this._targets = [];
       this._scrollHeight = this._getScrollHeight();
-      const targets = SelectorEngine__default.default.find(SELECTOR_LINK_ITEMS, this._config.target);
-      targets.map(element => {
+      const targets = SelectorEngine__default.default.find(SELECTOR_LINK_ITEMS, this._config.target).map(element => {
         const targetSelector = getSelectorFromElement(element);
         const target = targetSelector ? SelectorEngine__default.default.findOne(targetSelector) : null;
 
@@ -243,11 +252,13 @@
         }
 
         return null;
-      }).filter(item => item).sort((a, b) => a[0] - b[0]).forEach(item => {
+      }).filter(item => item).sort((a, b) => a[0] - b[0]);
+
+      for (const item of targets) {
         this._offsets.push(item[0]);
 
         this._targets.push(item[1]);
-      });
+      }
     }
 
     dispose() {
@@ -271,11 +282,11 @@
     }
 
     _getScrollHeight() {
-      return this._scrollElement.scrollHeight || Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
+      return this._scrollElement.scrollHeight || Math.max(this._document.body.scrollHeight, this._document.documentElement.scrollHeight);
     }
 
     _getOffsetHeight() {
-      return this._scrollElement === window ? window.innerHeight : this._scrollElement.getBoundingClientRect().height;
+      return this._scrollElement === window ? this._window.innerHeight : this._scrollElement.getBoundingClientRect().height;
     }
 
     _process() {
@@ -328,15 +339,20 @@
       if (link.classList.contains(CLASS_NAME_DROPDOWN_ITEM)) {
         SelectorEngine__default.default.findOne(SELECTOR_DROPDOWN_TOGGLE, link.closest(SELECTOR_DROPDOWN)).classList.add(CLASS_NAME_ACTIVE);
       } else {
-        SelectorEngine__default.default.parents(link, SELECTOR_NAV_LIST_GROUP).forEach(listGroup => {
+        for (const listGroup of SelectorEngine__default.default.parents(link, SELECTOR_NAV_LIST_GROUP)) {
           // Set triggered links parents as active
           // With both <ul> and <nav> markup a parent is the previous sibling of any nav ancestor
-          SelectorEngine__default.default.prev(listGroup, `${SELECTOR_NAV_LINKS}, ${SELECTOR_LIST_ITEMS}`).forEach(item => item.classList.add(CLASS_NAME_ACTIVE)); // Handle special case when .nav-link is inside .nav-item
+          for (const item of SelectorEngine__default.default.prev(listGroup, `${SELECTOR_NAV_LINKS}, ${SELECTOR_LIST_ITEMS}`)) {
+            item.classList.add(CLASS_NAME_ACTIVE);
+          } // Handle special case when .nav-link is inside .nav-item
 
-          SelectorEngine__default.default.prev(listGroup, SELECTOR_NAV_ITEMS).forEach(navItem => {
-            SelectorEngine__default.default.children(navItem, SELECTOR_NAV_LINKS).forEach(item => item.classList.add(CLASS_NAME_ACTIVE));
-          });
-        });
+
+          for (const navItem of SelectorEngine__default.default.prev(listGroup, SELECTOR_NAV_ITEMS)) {
+            for (const item of SelectorEngine__default.default.children(navItem, SELECTOR_NAV_LINKS)) {
+              item.classList.add(CLASS_NAME_ACTIVE);
+            }
+          }
+        }
       }
 
       EventHandler__default.default.trigger(this._scrollElement, EVENT_ACTIVATE, {
@@ -345,7 +361,11 @@
     }
 
     _clear() {
-      SelectorEngine__default.default.find(SELECTOR_LINK_ITEMS, this._config.target).filter(node => node.classList.contains(CLASS_NAME_ACTIVE)).forEach(node => node.classList.remove(CLASS_NAME_ACTIVE));
+      const activeNodes = SelectorEngine__default.default.find(SELECTOR_LINK_ITEMS, this._config.target).filter(node => node.classList.contains(CLASS_NAME_ACTIVE));
+
+      for (const node of activeNodes) {
+        node.classList.remove(CLASS_NAME_ACTIVE);
+      }
     } // Static
 
 
@@ -373,8 +393,10 @@
    */
 
 
-  EventHandler__default.default.on(window, EVENT_LOAD_DATA_API, () => {
-    SelectorEngine__default.default.find(SELECTOR_DATA_SPY).forEach(spy => new ScrollSpy(spy));
+  EventHandler__default.default.on(getWindow(), EVENT_LOAD_DATA_API, () => {
+    for (const spy of SelectorEngine__default.default.find(SELECTOR_DATA_SPY)) {
+      new ScrollSpy(spy); // eslint-disable-line no-new
+    }
   });
   /**
    * ------------------------------------------------------------------------

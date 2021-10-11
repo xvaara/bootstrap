@@ -4130,7 +4130,7 @@ textarea.form-control-lg {
   .navbar-expand-sm .offcanvas {
     position: inherit;
     bottom: 0;
-    z-index: 1000;
+    z-index: auto;
     flex-grow: 1;
     visibility: visible !important;
     background-color: transparent;
@@ -4183,7 +4183,7 @@ textarea.form-control-lg {
   .navbar-expand-md .offcanvas {
     position: inherit;
     bottom: 0;
-    z-index: 1000;
+    z-index: auto;
     flex-grow: 1;
     visibility: visible !important;
     background-color: transparent;
@@ -4236,7 +4236,7 @@ textarea.form-control-lg {
   .navbar-expand-lg .offcanvas {
     position: inherit;
     bottom: 0;
-    z-index: 1000;
+    z-index: auto;
     flex-grow: 1;
     visibility: visible !important;
     background-color: transparent;
@@ -4289,7 +4289,7 @@ textarea.form-control-lg {
   .navbar-expand-xl .offcanvas {
     position: inherit;
     bottom: 0;
-    z-index: 1000;
+    z-index: auto;
     flex-grow: 1;
     visibility: visible !important;
     background-color: transparent;
@@ -4342,7 +4342,7 @@ textarea.form-control-lg {
   .navbar-expand-xxl .offcanvas {
     position: inherit;
     bottom: 0;
-    z-index: 1000;
+    z-index: auto;
     flex-grow: 1;
     visibility: visible !important;
     background-color: transparent;
@@ -4394,7 +4394,7 @@ textarea.form-control-lg {
 .navbar-expand .offcanvas {
   position: inherit;
   bottom: 0;
-  z-index: 1000;
+  z-index: auto;
   flex-grow: 1;
   visibility: visible !important;
   background-color: transparent;

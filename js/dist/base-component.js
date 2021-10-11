@@ -32,7 +32,7 @@
     let {
       transitionDuration,
       transitionDelay
-    } = window.getComputedStyle(element);
+    } = getWindow().getComputedStyle(element);
     const floatTransitionDuration = Number.parseFloat(transitionDuration);
     const floatTransitionDelay = Number.parseFloat(transitionDelay); // Return 0 if element or transition duration is not found
 
@@ -111,6 +111,14 @@
     }, emulatedDuration);
   };
 
+  const getWindow = () => {
+    return typeof window === 'undefined' ? {} : window;
+  };
+
+  const getDocument = () => {
+    return typeof document === 'undefined' ? {} : document;
+  };
+
   /**
    * --------------------------------------------------------------------------
    * Bootstrap (v5.1.3): base-component.js
@@ -134,15 +142,18 @@
       }
 
       this._element = element;
+      this._window = getWindow();
+      this._document = getDocument();
       Data__default.default.set(this._element, this.constructor.DATA_KEY, this);
     }
 
     dispose() {
       Data__default.default.remove(this._element, this.constructor.DATA_KEY);
       EventHandler__default.default.off(this._element, this.constructor.EVENT_KEY);
-      Object.getOwnPropertyNames(this).forEach(propertyName => {
+
+      for (const propertyName of Object.getOwnPropertyNames(this)) {
         this[propertyName] = null;
-      });
+      }
     }
 
     _queueCallback(callback, element, isAnimated = true) {
