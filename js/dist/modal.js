@@ -167,7 +167,7 @@
   const getjQuery = () => {
     const {
       jQuery
-    } = window;
+    } = getWindow();
 
     if (jQuery && !getDocument().body.hasAttribute('data-bs-no-jquery')) {
       return jQuery;
@@ -257,7 +257,9 @@
   };
 
   const getDocument = () => {
-    return typeof document === 'undefined' ? {} : document;
+    return typeof document === 'undefined' ? {
+      documentElement: {}
+    } : document;
   };
 
   /**

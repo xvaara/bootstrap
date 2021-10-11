@@ -206,7 +206,7 @@ const reflow = element => {
 const getjQuery = () => {
   const {
     jQuery
-  } = window;
+  } = getWindow();
 
   if (jQuery && !getDocument().body.hasAttribute('data-bs-no-jquery')) {
     return jQuery;
@@ -323,7 +323,9 @@ const getWindow = () => {
 };
 
 const getDocument = () => {
-  return typeof document === 'undefined' ? {} : document;
+  return typeof document === 'undefined' ? {
+    documentElement: {}
+  } : document;
 };
 
 /**
@@ -432,7 +434,7 @@ function normalizeParams(originalTypeEvent, handler, delegationFn) {
 }
 
 function addHandler(element, originalTypeEvent, handler, delegationFn, oneOff) {
-  if (typeof originalTypeEvent !== 'string' || !element) {
+  if (typeof originalTypeEvent !== 'string' || !element || !element.addEventListener) {
     return;
   }
 

@@ -145,7 +145,7 @@
   const getjQuery = () => {
     const {
       jQuery
-    } = window;
+    } = getWindow();
 
     if (jQuery && !getDocument().body.hasAttribute('data-bs-no-jquery')) {
       return jQuery;
@@ -221,8 +221,14 @@
     return list[Math.max(0, Math.min(index, listLength - 1))];
   };
 
+  const getWindow = () => {
+    return typeof window === 'undefined' ? {} : window;
+  };
+
   const getDocument = () => {
-    return typeof document === 'undefined' ? {} : document;
+    return typeof document === 'undefined' ? {
+      documentElement: {}
+    } : document;
   };
 
   /**

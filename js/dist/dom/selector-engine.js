@@ -53,7 +53,9 @@
   };
 
   const getDocument = () => {
-    return typeof document === 'undefined' ? {} : document;
+    return typeof document === 'undefined' ? {
+      documentElement: {}
+    } : document;
   };
 
   /**
