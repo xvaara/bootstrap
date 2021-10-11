@@ -7,14 +7,14 @@
 
 import SelectorEngine from '../dom/selector-engine'
 import Manipulator from '../dom/manipulator'
-import { isElement } from './index'
+import { isElement, getDocument } from './index'
 
 const SELECTOR_FIXED_CONTENT = '.fixed-top, .fixed-bottom, .is-fixed, .sticky-top'
 const SELECTOR_STICKY_CONTENT = '.sticky-top'
 
 class ScrollBarHelper {
   constructor() {
-    this._element = document.body
+    this._element = getDocument().body
   }
 
   getWidth() {
