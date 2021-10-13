@@ -7,7 +7,7 @@
 
 import EventHandler from '../dom/event-handler'
 import SelectorEngine from '../dom/selector-engine'
-import { typeCheckConfig } from './index'
+import { typeCheckConfig, getDocument } from './index'
 
 const Default = {
   trapElement: null, // The element to trap focus inside of
@@ -47,9 +47,11 @@ class FocusTrap {
       trapElement.focus()
     }
 
-    EventHandler.off(document, EVENT_KEY) // guard against infinite focus loop
-    EventHandler.on(document, EVENT_FOCUSIN, event => this._handleFocusin(event))
-    EventHandler.on(document, EVENT_KEYDOWN_TAB, event => this._handleKeydown(event))
+    const documentRef = getDocument()
+
+    EventHandler.off(documentRef, EVENT_KEY) // guard against infinite focus loop
+    EventHandler.on(documentRef, EVENT_FOCUSIN, event => this._handleFocusin(event))
+    EventHandler.on(documentRef, EVENT_KEYDOWN_TAB, event => this._handleKeydown(event))
 
     this._isActive = true
   }
@@ -68,8 +70,9 @@ class FocusTrap {
   _handleFocusin(event) {
     const { target } = event
     const { trapElement } = this._config
+    const documentRef = getDocument()
 
-    if (target === document || target === trapElement || trapElement.contains(target)) {
+    if (target === documentRef || target === trapElement || trapElement.contains(target)) {
       return
     }
 
