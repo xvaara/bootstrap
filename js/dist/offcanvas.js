@@ -535,10 +535,11 @@
         trapElement.focus();
       }
 
-      EventHandler__default.default.off(document, EVENT_KEY$1); // guard against infinite focus loop
+      const documentRef = getDocument();
+      EventHandler__default.default.off(documentRef, EVENT_KEY$1); // guard against infinite focus loop
 
-      EventHandler__default.default.on(document, EVENT_FOCUSIN, event => this._handleFocusin(event));
-      EventHandler__default.default.on(document, EVENT_KEYDOWN_TAB, event => this._handleKeydown(event));
+      EventHandler__default.default.on(documentRef, EVENT_FOCUSIN, event => this._handleFocusin(event));
+      EventHandler__default.default.on(documentRef, EVENT_KEYDOWN_TAB, event => this._handleKeydown(event));
       this._isActive = true;
     }
 
@@ -559,8 +560,9 @@
       const {
         trapElement
       } = this._config;
+      const documentRef = getDocument();
 
-      if (target === document || target === trapElement || trapElement.contains(target)) {
+      if (target === documentRef || target === trapElement || trapElement.contains(target)) {
         return;
       }
 
