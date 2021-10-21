@@ -1,6 +1,6 @@
 /**
  * --------------------------------------------------------------------------
- * Bootstrap (v5.1.2): base-component.js
+ * Bootstrap (v5.1.3): base-component.js
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
  * --------------------------------------------------------------------------
  */
@@ -15,12 +15,14 @@ import {
 import EventHandler from './dom/event-handler'
 
 /**
- * ------------------------------------------------------------------------
  * Constants
- * ------------------------------------------------------------------------
  */
 
-const VERSION = '5.1.2'
+const VERSION = '5.1.3'
+
+/**
+ * Class definition
+ */
 
 class BaseComponent {
   constructor(element) {
@@ -36,6 +38,7 @@ class BaseComponent {
     Data.set(this._element, this.constructor.DATA_KEY, this)
   }
 
+  // Public
   dispose() {
     Data.remove(this._element, this.constructor.DATA_KEY)
     EventHandler.off(this._element, this.constructor.EVENT_KEY)
@@ -49,8 +52,7 @@ class BaseComponent {
     executeAfterTransition(callback, element, isAnimated)
   }
 
-  /** Static */
-
+  // Static
   static getInstance(element) {
     return Data.get(getElement(element), this.DATA_KEY)
   }
@@ -64,7 +66,7 @@ class BaseComponent {
   }
 
   static get NAME() {
-    throw new Error('You have to implement the static method "NAME", for each component!')
+    throw new Error('You have to implement the static method "NAME" for each component!')
   }
 
   static get DATA_KEY() {

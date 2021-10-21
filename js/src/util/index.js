@@ -1,6 +1,6 @@
 /**
  * --------------------------------------------------------------------------
- * Bootstrap (v5.1.2): util/index.js
+ * Bootstrap (v5.1.3): util/index.js
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
  * --------------------------------------------------------------------------
  */
@@ -19,9 +19,7 @@ const toType = obj => {
 }
 
 /**
- * --------------------------------------------------------------------------
- * Public Util Api
- * --------------------------------------------------------------------------
+ * Public Util API
  */
 
 const getUID = prefix => {
@@ -113,7 +111,8 @@ const isElement = obj => {
 }
 
 const getElement = obj => {
-  if (isElement(obj)) { // it's a jQuery object or a node element
+  // it's a jQuery object or a node element
+  if (isElement(obj)) {
     return obj.jquery ? obj[0] : obj
   }
 
@@ -311,35 +310,49 @@ const getNextActiveElement = (list, activeElement, shouldGetNext, isCycleAllowed
   return list[Math.max(0, Math.min(index, listLength - 1))]
 }
 
+/**
+ * @return {window|{}} The proper element
+ */
+
 const getWindow = () => {
   return typeof window === 'undefined' ? {} : window
 }
 
+/**
+ * @return {document|{}} The proper element
+ */
 const getDocument = () => {
-  return typeof document === 'undefined' ? { documentElement: {} } : document
+  return typeof document === 'undefined' ? {} : document
+
 }
 
 export {
-  getElement,
-  getUID,
-  getSelectorFromElement,
-  getElementFromSelector,
-  getTransitionDurationFromElement,
-  triggerTransitionEnd,
-  isElement,
-  typeCheckConfig,
-  isVisible,
-  isDisabled,
+  defineJQueryPlugin,
+  execute,
+  executeAfterTransition,
   findShadowRoot,
-  noop,
-  getNextActiveElement,
-  reflow,
+  getDocument,
+  getElement,
+  getElementFromSelector,
   getjQuery,
+  getNextActiveElement,
+  getSelectorFromElement,
+  getTransitionDurationFromElement,
+  getUID,
+  getWindow,
+  isDisabled,
+  isElement,
+  isRTL,
+  isVisible,
+  noop,
   onDOMContentLoaded,
   isRTL,
   defineJQueryPlugin,
   execute,
   executeAfterTransition,
   getWindow,
-  getDocument
+  getDocument,
+  reflow,
+  triggerTransitionEnd,
+  typeCheckConfig
 }

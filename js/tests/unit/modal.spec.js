@@ -1,8 +1,6 @@
 import Modal from '../../src/modal'
 import EventHandler from '../../src/dom/event-handler'
 import ScrollBarHelper from '../../src/util/scrollbar'
-
-/** Test helpers */
 import { clearBodyAndDocument, clearFixture, createEvent, getFixture, jQueryMock } from '../helpers/fixture'
 
 describe('Modal', () => {
@@ -610,6 +608,7 @@ describe('Modal', () => {
 
       const modalEl = fixtureEl.querySelector('.modal')
       const modal = new Modal(modalEl)
+      const backdropSpy = spyOn(modal._backdrop, 'hide').and.callThrough()
 
       modalEl.addEventListener('shown.bs.modal', () => {
         modal.hide()
@@ -624,7 +623,7 @@ describe('Modal', () => {
         expect(modalEl.getAttribute('role')).toBeNull()
         expect(modalEl.getAttribute('aria-hidden')).toEqual('true')
         expect(modalEl.style.display).toEqual('none')
-        expect(document.querySelector('.modal-backdrop')).toBeNull()
+        expect(backdropSpy).toHaveBeenCalled()
         done()
       })
 

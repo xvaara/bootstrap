@@ -1,6 +1,6 @@
 /**
  * --------------------------------------------------------------------------
- * Bootstrap (v5.1.2): carousel.js
+ * Bootstrap (v5.1.3): carousel.js
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
  * --------------------------------------------------------------------------
  */
@@ -8,9 +8,9 @@
 import {
   defineJQueryPlugin,
   getElementFromSelector,
+  getNextActiveElement,
   isRTL,
   isVisible,
-  getNextActiveElement,
   reflow,
   triggerTransitionEnd,
   typeCheckConfig,
@@ -20,12 +20,11 @@ import {
 import EventHandler from './dom/event-handler'
 import Manipulator from './dom/manipulator'
 import SelectorEngine from './dom/selector-engine'
+import Swipe from './util/swipe'
 import BaseComponent from './base-component'
 
 /**
- * ------------------------------------------------------------------------
  * Constants
- * ------------------------------------------------------------------------
  */
 
 const NAME = 'carousel'
@@ -36,7 +35,43 @@ const DATA_API_KEY = '.data-api'
 const ARROW_LEFT_KEY = 'ArrowLeft'
 const ARROW_RIGHT_KEY = 'ArrowRight'
 const TOUCHEVENT_COMPAT_WAIT = 500 // Time for mouse compat events to fire after touch
-const SWIPE_THRESHOLD = 40
+
+const ORDER_NEXT = 'next'
+const ORDER_PREV = 'prev'
+const DIRECTION_LEFT = 'left'
+const DIRECTION_RIGHT = 'right'
+
+const EVENT_SLIDE = `slide${EVENT_KEY}`
+const EVENT_SLID = `slid${EVENT_KEY}`
+const EVENT_KEYDOWN = `keydown${EVENT_KEY}`
+const EVENT_MOUSEENTER = `mouseenter${EVENT_KEY}`
+const EVENT_MOUSELEAVE = `mouseleave${EVENT_KEY}`
+const EVENT_DRAG_START = `dragstart${EVENT_KEY}`
+const EVENT_LOAD_DATA_API = `load${EVENT_KEY}${DATA_API_KEY}`
+const EVENT_CLICK_DATA_API = `click${EVENT_KEY}${DATA_API_KEY}`
+
+const CLASS_NAME_CAROUSEL = 'carousel'
+const CLASS_NAME_ACTIVE = 'active'
+const CLASS_NAME_SLIDE = 'slide'
+const CLASS_NAME_END = 'carousel-item-end'
+const CLASS_NAME_START = 'carousel-item-start'
+const CLASS_NAME_NEXT = 'carousel-item-next'
+const CLASS_NAME_PREV = 'carousel-item-prev'
+
+const SELECTOR_ACTIVE = '.active'
+const SELECTOR_ACTIVE_ITEM = '.active.carousel-item'
+const SELECTOR_ITEM = '.carousel-item'
+const SELECTOR_ITEM_IMG = '.carousel-item img'
+const SELECTOR_NEXT_PREV = '.carousel-item-next, .carousel-item-prev'
+const SELECTOR_INDICATORS = '.carousel-indicators'
+const SELECTOR_INDICATOR = '[data-bs-target]'
+const SELECTOR_DATA_SLIDE = '[data-bs-slide], [data-bs-slide-to]'
+const SELECTOR_DATA_RIDE = '[data-bs-ride="carousel"]'
+
+const KEY_TO_DIRECTION = {
+  [ARROW_LEFT_KEY]: DIRECTION_RIGHT,
+  [ARROW_RIGHT_KEY]: DIRECTION_LEFT
+}
 
 const Default = {
   interval: 5000,
@@ -56,57 +91,10 @@ const DefaultType = {
   touch: 'boolean'
 }
 
-const ORDER_NEXT = 'next'
-const ORDER_PREV = 'prev'
-const DIRECTION_LEFT = 'left'
-const DIRECTION_RIGHT = 'right'
-
-const KEY_TO_DIRECTION = {
-  [ARROW_LEFT_KEY]: DIRECTION_RIGHT,
-  [ARROW_RIGHT_KEY]: DIRECTION_LEFT
-}
-
-const EVENT_SLIDE = `slide${EVENT_KEY}`
-const EVENT_SLID = `slid${EVENT_KEY}`
-const EVENT_KEYDOWN = `keydown${EVENT_KEY}`
-const EVENT_MOUSEENTER = `mouseenter${EVENT_KEY}`
-const EVENT_MOUSELEAVE = `mouseleave${EVENT_KEY}`
-const EVENT_TOUCHSTART = `touchstart${EVENT_KEY}`
-const EVENT_TOUCHMOVE = `touchmove${EVENT_KEY}`
-const EVENT_TOUCHEND = `touchend${EVENT_KEY}`
-const EVENT_POINTERDOWN = `pointerdown${EVENT_KEY}`
-const EVENT_POINTERUP = `pointerup${EVENT_KEY}`
-const EVENT_DRAG_START = `dragstart${EVENT_KEY}`
-const EVENT_LOAD_DATA_API = `load${EVENT_KEY}${DATA_API_KEY}`
-const EVENT_CLICK_DATA_API = `click${EVENT_KEY}${DATA_API_KEY}`
-
-const CLASS_NAME_CAROUSEL = 'carousel'
-const CLASS_NAME_ACTIVE = 'active'
-const CLASS_NAME_SLIDE = 'slide'
-const CLASS_NAME_END = 'carousel-item-end'
-const CLASS_NAME_START = 'carousel-item-start'
-const CLASS_NAME_NEXT = 'carousel-item-next'
-const CLASS_NAME_PREV = 'carousel-item-prev'
-const CLASS_NAME_POINTER_EVENT = 'pointer-event'
-
-const SELECTOR_ACTIVE = '.active'
-const SELECTOR_ACTIVE_ITEM = '.active.carousel-item'
-const SELECTOR_ITEM = '.carousel-item'
-const SELECTOR_ITEM_IMG = '.carousel-item img'
-const SELECTOR_NEXT_PREV = '.carousel-item-next, .carousel-item-prev'
-const SELECTOR_INDICATORS = '.carousel-indicators'
-const SELECTOR_INDICATOR = '[data-bs-target]'
-const SELECTOR_DATA_SLIDE = '[data-bs-slide], [data-bs-slide-to]'
-const SELECTOR_DATA_RIDE = '[data-bs-ride="carousel"]'
-
-const POINTER_TYPE_TOUCH = 'touch'
-const POINTER_TYPE_PEN = 'pen'
-
 /**
- * ------------------------------------------------------------------------
- * Class Definition
- * ------------------------------------------------------------------------
+ * Class definition
  */
+
 class Carousel extends BaseComponent {
   constructor(element, config) {
     super(element)
@@ -117,19 +105,17 @@ class Carousel extends BaseComponent {
     this._isPaused = false
     this._isSliding = false
     this.touchTimeout = null
-    this.touchStartX = 0
-    this.touchDeltaX = 0
+    this._swipeHelper = null
 
     this._config = this._getConfig(config)
     this._indicatorsElement = SelectorEngine.findOne(SELECTOR_INDICATORS, this._element)
     this._touchSupported = 'ontouchstart' in this._document.documentElement || this._window.navigator.maxTouchPoints > 0
     this._pointerEvent = Boolean(this._window.PointerEvent)
-
+    
     this._addEventListeners()
   }
 
   // Getters
-
   static get Default() {
     return Default
   }
@@ -139,7 +125,6 @@ class Carousel extends BaseComponent {
   }
 
   // Public
-
   next() {
     this._slide(ORDER_NEXT)
   }
@@ -216,8 +201,15 @@ class Carousel extends BaseComponent {
     this._slide(order, this._items[index])
   }
 
-  // Private
+  dispose() {
+    if (this._swipeHelper) {
+      this._swipeHelper.dispose()
+    }
 
+    super.dispose()
+  }
+
+  // Private
   _getConfig(config) {
     config = {
       ...Default,
@@ -226,24 +218,6 @@ class Carousel extends BaseComponent {
     }
     typeCheckConfig(NAME, config, DefaultType)
     return config
-  }
-
-  _handleSwipe() {
-    const absDeltax = Math.abs(this.touchDeltaX)
-
-    if (absDeltax <= SWIPE_THRESHOLD) {
-      return
-    }
-
-    const direction = absDeltax / this.touchDeltaX
-
-    this.touchDeltaX = 0
-
-    if (!direction) {
-      return
-    }
-
-    this._slide(direction > 0 ? DIRECTION_RIGHT : DIRECTION_LEFT)
   }
 
   _addEventListeners() {
@@ -256,38 +230,17 @@ class Carousel extends BaseComponent {
       EventHandler.on(this._element, EVENT_MOUSELEAVE, event => this.cycle(event))
     }
 
-    if (this._config.touch && this._touchSupported) {
+    if (this._config.touch && Swipe.isSupported()) {
       this._addTouchEventListeners()
     }
   }
 
   _addTouchEventListeners() {
-    const hasPointerPenTouch = event => {
-      return this._pointerEvent &&
-        (event.pointerType === POINTER_TYPE_PEN || event.pointerType === POINTER_TYPE_TOUCH)
+    for (const itemImg of SelectorEngine.find(SELECTOR_ITEM_IMG, this._element)) {
+      EventHandler.on(itemImg, EVENT_DRAG_START, event => event.preventDefault())
     }
 
-    const start = event => {
-      if (hasPointerPenTouch(event)) {
-        this.touchStartX = event.clientX
-      } else if (!this._pointerEvent) {
-        this.touchStartX = event.touches[0].clientX
-      }
-    }
-
-    const move = event => {
-      // ensure swiping with one touch and not pinching
-      this.touchDeltaX = event.touches && event.touches.length > 1 ?
-        0 :
-        event.touches[0].clientX - this.touchStartX
-    }
-
-    const end = event => {
-      if (hasPointerPenTouch(event)) {
-        this.touchDeltaX = event.clientX - this.touchStartX
-      }
-
-      this._handleSwipe()
+    const endCallBack = () => {
       if (this._config.pause === 'hover') {
         // If it's a touch-enabled device, mouseenter/leave are fired as
         // part of the mouse compatibility events on first tap - the carousel
@@ -306,20 +259,13 @@ class Carousel extends BaseComponent {
       }
     }
 
-    for (const itemImg of SelectorEngine.find(SELECTOR_ITEM_IMG, this._element)) {
-      EventHandler.on(itemImg, EVENT_DRAG_START, event => event.preventDefault())
+    const swipeConfig = {
+      leftCallback: () => this._slide(DIRECTION_LEFT),
+      rightCallback: () => this._slide(DIRECTION_RIGHT),
+      endCallback: endCallBack
     }
 
-    if (this._pointerEvent) {
-      EventHandler.on(this._element, EVENT_POINTERDOWN, event => start(event))
-      EventHandler.on(this._element, EVENT_POINTERUP, event => end(event))
-
-      this._element.classList.add(CLASS_NAME_POINTER_EVENT)
-    } else {
-      EventHandler.on(this._element, EVENT_TOUCHSTART, event => start(event))
-      EventHandler.on(this._element, EVENT_TOUCHMOVE, event => move(event))
-      EventHandler.on(this._element, EVENT_TOUCHEND, event => end(event))
-    }
+    this._swipeHelper = new Swipe(this._element, swipeConfig)
   }
 
   _keydown(event) {
@@ -504,7 +450,6 @@ class Carousel extends BaseComponent {
   }
 
   // Static
-
   static carouselInterface(element, config) {
     const data = Carousel.getOrCreateInstance(element, config)
 
@@ -566,9 +511,7 @@ class Carousel extends BaseComponent {
 }
 
 /**
- * ------------------------------------------------------------------------
- * Data Api implementation
- * ------------------------------------------------------------------------
+ * Data API implementation
  */
 
 EventHandler.on(getDocument(), EVENT_CLICK_DATA_API, SELECTOR_DATA_SLIDE, Carousel.dataApiClickHandler)
@@ -582,10 +525,7 @@ EventHandler.on(getWindow(), EVENT_LOAD_DATA_API, () => {
 })
 
 /**
- * ------------------------------------------------------------------------
  * jQuery
- * ------------------------------------------------------------------------
- * add .Carousel to jQuery only if jQuery is present
  */
 
 defineJQueryPlugin(Carousel)

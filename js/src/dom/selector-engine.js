@@ -1,14 +1,14 @@
 /**
  * --------------------------------------------------------------------------
- * Bootstrap (v5.1.2): dom/selector-engine.js
+ * Bootstrap (v5.1.3): dom/selector-engine.js
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
  * --------------------------------------------------------------------------
  */
 
+import { getDocument, isDisabled, isVisible } from '../util/index'
+
 /**
- * ------------------------------------------------------------------------
  * Constants
- * ------------------------------------------------------------------------
  */
 
 import { isDisabled, isVisible, getDocument } from '../util/index'
@@ -25,13 +25,11 @@ const SelectorEngine = {
   },
 
   children(element, selector) {
-    return [].concat(...element.children)
-      .filter(child => child.matches(selector))
+    return [].concat(...element.children).filter(child => child.matches(selector))
   },
 
   parents(element, selector) {
     const parents = []
-
     let ancestor = element.parentNode
 
     while (ancestor && ancestor.nodeType === Node.ELEMENT_NODE && ancestor.nodeType !== NODE_TEXT) {

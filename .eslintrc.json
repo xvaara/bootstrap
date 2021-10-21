@@ -39,6 +39,7 @@
       }
     ],
     "no-console": "error",
+    "no-negated-condition": "off",
     "object-curly-spacing": [
       "error",
       "always"
