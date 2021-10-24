@@ -23,9 +23,9 @@
   const getjQuery = () => {
     const {
       jQuery
-    } = window;
+    } = getWindow();
 
-    if (jQuery && !document.body.hasAttribute('data-bs-no-jquery')) {
+    if (jQuery && !getDocument().body.hasAttribute('data-bs-no-jquery')) {
       return jQuery;
     }
 
@@ -35,11 +35,13 @@
   const DOMContentLoadedCallbacks = [];
 
   const onDOMContentLoaded = callback => {
-    if (document.readyState === 'loading') {
+    if (getDocument().readyState === 'loading') {
       // add listener on the first call when the document is in loading state
       if (!DOMContentLoadedCallbacks.length) {
-        document.addEventListener('DOMContentLoaded', () => {
-          DOMContentLoadedCallbacks.forEach(callback => callback());
+        getDocument().addEventListener('DOMContentLoaded', () => {
+          for (const callback of DOMContentLoadedCallbacks) {
+            callback();
+          }
         });
       }
 
@@ -66,6 +68,16 @@
         };
       }
     });
+  };
+
+  const getWindow = () => {
+    return typeof window === 'undefined' ? {} : window;
+  };
+
+  const getDocument = () => {
+    return typeof document === 'undefined' ? {
+      documentElement: {}
+    } : document;
   };
 
   /**

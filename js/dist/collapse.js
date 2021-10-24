@@ -29,7 +29,7 @@
       return `${obj}`;
     }
 
-    return {}.toString.call(obj).match(/\s([a-z]+)/i)[1].toLowerCase();
+    return Object.prototype.toString.call(obj).match(/\s([a-z]+)/i)[1].toLowerCase();
   };
 
   const getSelector = element => {
@@ -60,7 +60,7 @@
     const selector = getSelector(element);
 
     if (selector) {
-      return document.querySelector(selector) ? selector : null;
+      return getDocument().querySelector(selector) ? selector : null;
     }
 
     return null;
@@ -68,7 +68,7 @@
 
   const getElementFromSelector = element => {
     const selector = getSelector(element);
-    return selector ? document.querySelector(selector) : null;
+    return selector ? getDocument().querySelector(selector) : null;
   };
 
   const isElement = obj => {
@@ -97,7 +97,7 @@
   };
 
   const typeCheckConfig = (componentName, config, configTypes) => {
-    Object.keys(configTypes).forEach(property => {
+    for (const property of Object.keys(configTypes)) {
       const expectedTypes = configTypes[property];
       const value = config[property];
       const valueType = value && isElement(value) ? 'element' : toType(value);
@@ -105,7 +105,7 @@
       if (!new RegExp(expectedTypes).test(valueType)) {
         throw new TypeError(`${componentName.toUpperCase()}: Option "${property}" provided type "${valueType}" but expected type "${expectedTypes}".`);
       }
-    });
+    }
   };
   /**
    * Trick to restart an element's animation
@@ -125,9 +125,9 @@
   const getjQuery = () => {
     const {
       jQuery
-    } = window;
+    } = getWindow();
 
-    if (jQuery && !document.body.hasAttribute('data-bs-no-jquery')) {
+    if (jQuery && !getDocument().body.hasAttribute('data-bs-no-jquery')) {
       return jQuery;
     }
 
@@ -137,11 +137,13 @@
   const DOMContentLoadedCallbacks = [];
 
   const onDOMContentLoaded = callback => {
-    if (document.readyState === 'loading') {
+    if (getDocument().readyState === 'loading') {
       // add listener on the first call when the document is in loading state
       if (!DOMContentLoadedCallbacks.length) {
-        document.addEventListener('DOMContentLoaded', () => {
-          DOMContentLoadedCallbacks.forEach(callback => callback());
+        getDocument().addEventListener('DOMContentLoaded', () => {
+          for (const callback of DOMContentLoadedCallbacks) {
+            callback();
+          }
         });
       }
 
@@ -168,6 +170,16 @@
         };
       }
     });
+  };
+
+  const getWindow = () => {
+    return typeof window === 'undefined' ? {} : window;
+  };
+
+  const getDocument = () => {
+    return typeof document === 'undefined' ? {
+      documentElement: {}
+    } : document;
   };
 
   /**
@@ -223,8 +235,7 @@
       this._triggerArray = [];
       const toggleList = SelectorEngine__default.default.find(SELECTOR_DATA_TOGGLE);
 
-      for (let i = 0, len = toggleList.length; i < len; i++) {
-        const elem = toggleList[i];
+      for (const elem of toggleList) {
         const selector = getSelectorFromElement(elem);
         const filterElement = SelectorEngine__default.default.find(selector).filter(foundElem => foundElem === this._element);
 
@@ -273,8 +284,9 @@
       let activesData;
 
       if (this._config.parent) {
-        const children = SelectorEngine__default.default.find(CLASS_NAME_DEEPER_CHILDREN, this._config.parent);
-        actives = SelectorEngine__default.default.find(SELECTOR_ACTIVES, this._config.parent).filter(elem => !children.includes(elem)); // remove children if greater depth
+        const children = SelectorEngine__default.default.find(CLASS_NAME_DEEPER_CHILDREN, this._config.parent); // remove children if greater depth
+
+        actives = SelectorEngine__default.default.find(SELECTOR_ACTIVES, this._config.parent).filter(elem => !children.includes(elem));
       }
 
       const container = SelectorEngine__default.default.findOne(this._selector);
@@ -294,7 +306,7 @@
         return;
       }
 
-      actives.forEach(elemActive => {
+      for (const elemActive of actives) {
         if (container !== elemActive) {
           Collapse.getOrCreateInstance(elemActive, {
             toggle: false
@@ -304,7 +316,7 @@
         if (!activesData) {
           Data__default.default.set(elemActive, DATA_KEY, null);
         }
-      });
+      }
 
       const dimension = this._getDimension();
 
@@ -357,10 +369,7 @@
 
       this._element.classList.remove(CLASS_NAME_COLLAPSE, CLASS_NAME_SHOW);
 
-      const triggerArrayLength = this._triggerArray.length;
-
-      for (let i = 0; i < triggerArrayLength; i++) {
-        const trigger = this._triggerArray[i];
+      for (const trigger of this._triggerArray) {
         const elem = getElementFromSelector(trigger);
 
         if (elem && !this._isShown(elem)) {
@@ -412,13 +421,15 @@
       }
 
       const children = SelectorEngine__default.default.find(CLASS_NAME_DEEPER_CHILDREN, this._config.parent);
-      SelectorEngine__default.default.find(SELECTOR_DATA_TOGGLE, this._config.parent).filter(elem => !children.includes(elem)).forEach(element => {
+      const elements = SelectorEngine__default.default.find(SELECTOR_DATA_TOGGLE, this._config.parent).filter(elem => !children.includes(elem));
+
+      for (const element of elements) {
         const selected = getElementFromSelector(element);
 
         if (selected) {
           this._addAriaAndCollapsedClass([element], this._isShown(selected));
         }
-      });
+      }
     }
 
     _addAriaAndCollapsedClass(triggerArray, isOpen) {
@@ -426,7 +437,7 @@
         return;
       }
 
-      triggerArray.forEach(elem => {
+      for (const elem of triggerArray) {
         if (isOpen) {
           elem.classList.remove(CLASS_NAME_COLLAPSED);
         } else {
@@ -434,7 +445,7 @@
         }
 
         elem.setAttribute('aria-expanded', isOpen);
-      });
+      }
     } // Static
 
 
@@ -466,7 +477,7 @@
    */
 
 
-  EventHandler__default.default.on(document, EVENT_CLICK_DATA_API, SELECTOR_DATA_TOGGLE, function (event) {
+  EventHandler__default.default.on(getDocument(), EVENT_CLICK_DATA_API, SELECTOR_DATA_TOGGLE, function (event) {
     // preventDefault only for <a> elements (which change the URL) not inside the collapsible element
     if (event.target.tagName === 'A' || event.delegateTarget && event.delegateTarget.tagName === 'A') {
       event.preventDefault();
@@ -474,11 +485,12 @@
 
     const selector = getSelectorFromElement(this);
     const selectorElements = SelectorEngine__default.default.find(selector);
-    selectorElements.forEach(element => {
+
+    for (const element of selectorElements) {
       Collapse.getOrCreateInstance(element, {
         toggle: false
       }).toggle();
-    });
+    }
   });
   /**
    * ------------------------------------------------------------------------

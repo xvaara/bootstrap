@@ -13,6 +13,7 @@ import { isElement, getDocument } from './index'
  * Constants
  */
 
+
 const SELECTOR_FIXED_CONTENT = '.fixed-top, .fixed-bottom, .is-fixed, .sticky-top'
 const SELECTOR_STICKY_CONTENT = '.sticky-top'
 

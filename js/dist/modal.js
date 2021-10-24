@@ -30,7 +30,7 @@
       return `${obj}`;
     }
 
-    return {}.toString.call(obj).match(/\s([a-z]+)/i)[1].toLowerCase();
+    return Object.prototype.toString.call(obj).match(/\s([a-z]+)/i)[1].toLowerCase();
   };
 
   const getSelector = element => {
@@ -59,7 +59,7 @@
 
   const getElementFromSelector = element => {
     const selector = getSelector(element);
-    return selector ? document.querySelector(selector) : null;
+    return selector ? getDocument().querySelector(selector) : null;
   };
 
   const getTransitionDurationFromElement = element => {
@@ -71,7 +71,7 @@
     let {
       transitionDuration,
       transitionDelay
-    } = window.getComputedStyle(element);
+    } = getWindow().getComputedStyle(element);
     const floatTransitionDuration = Number.parseFloat(transitionDuration);
     const floatTransitionDelay = Number.parseFloat(transitionDelay); // Return 0 if element or transition duration is not found
 
@@ -115,7 +115,7 @@
   };
 
   const typeCheckConfig = (componentName, config, configTypes) => {
-    Object.keys(configTypes).forEach(property => {
+    for (const property of Object.keys(configTypes)) {
       const expectedTypes = configTypes[property];
       const value = config[property];
       const valueType = value && isElement(value) ? 'element' : toType(value);
@@ -123,7 +123,7 @@
       if (!new RegExp(expectedTypes).test(valueType)) {
         throw new TypeError(`${componentName.toUpperCase()}: Option "${property}" provided type "${valueType}" but expected type "${expectedTypes}".`);
       }
-    });
+    }
   };
 
   const isVisible = element => {
@@ -167,9 +167,9 @@
   const getjQuery = () => {
     const {
       jQuery
-    } = window;
+    } = getWindow();
 
-    if (jQuery && !document.body.hasAttribute('data-bs-no-jquery')) {
+    if (jQuery && !getDocument().body.hasAttribute('data-bs-no-jquery')) {
       return jQuery;
     }
 
@@ -179,11 +179,13 @@
   const DOMContentLoadedCallbacks = [];
 
   const onDOMContentLoaded = callback => {
-    if (document.readyState === 'loading') {
+    if (getDocument().readyState === 'loading') {
       // add listener on the first call when the document is in loading state
       if (!DOMContentLoadedCallbacks.length) {
-        document.addEventListener('DOMContentLoaded', () => {
-          DOMContentLoadedCallbacks.forEach(callback => callback());
+        getDocument().addEventListener('DOMContentLoaded', () => {
+          for (const callback of DOMContentLoadedCallbacks) {
+            callback();
+          }
         });
       }
 
@@ -193,7 +195,7 @@
     }
   };
 
-  const isRTL = () => document.documentElement.dir === 'rtl';
+  const isRTL = () => getDocument().documentElement.dir === 'rtl';
 
   const defineJQueryPlugin = plugin => {
     onDOMContentLoaded(() => {
@@ -250,6 +252,16 @@
     }, emulatedDuration);
   };
 
+  const getWindow = () => {
+    return typeof window === 'undefined' ? {} : window;
+  };
+
+  const getDocument = () => {
+    return typeof document === 'undefined' ? {
+      documentElement: {}
+    } : document;
+  };
+
   /**
    * --------------------------------------------------------------------------
    * Bootstrap (v5.1.3): util/scrollBar.js
@@ -261,7 +273,7 @@
 
   class ScrollBarHelper {
     constructor() {
-      this._element = document.body;
+      this._element = getDocument().body;
     }
 
     getWidth() {
@@ -344,7 +356,9 @@
       if (isElement(selector)) {
         callBack(selector);
       } else {
-        SelectorEngine__default.default.find(selector, this._element).forEach(callBack);
+        for (const sel of SelectorEngine__default.default.find(selector, this._element)) {
+          callBack(sel);
+        }
       }
     }
 
@@ -523,10 +537,11 @@
         trapElement.focus();
       }
 
-      EventHandler__default.default.off(document, EVENT_KEY$1); // guard against infinite focus loop
+      const documentRef = getDocument();
+      EventHandler__default.default.off(documentRef, EVENT_KEY$1); // guard against infinite focus loop
 
-      EventHandler__default.default.on(document, EVENT_FOCUSIN, event => this._handleFocusin(event));
-      EventHandler__default.default.on(document, EVENT_KEYDOWN_TAB, event => this._handleKeydown(event));
+      EventHandler__default.default.on(documentRef, EVENT_FOCUSIN, event => this._handleFocusin(event));
+      EventHandler__default.default.on(documentRef, EVENT_KEYDOWN_TAB, event => this._handleKeydown(event));
       this._isActive = true;
     }
 
@@ -547,8 +562,9 @@
       const {
         trapElement
       } = this._config;
+      const documentRef = getDocument();
 
-      if (target === document || target === trapElement || trapElement.contains(target)) {
+      if (target === documentRef || target === trapElement || trapElement.contains(target)) {
         return;
       }
 
@@ -591,7 +607,7 @@
   const enableDismissTrigger = (component, method = 'hide') => {
     const clickEvent = `click.dismiss${component.EVENT_KEY}`;
     const name = component.NAME;
-    EventHandler__default.default.on(document, clickEvent, `[data-bs-dismiss="${name}"]`, function (event) {
+    EventHandler__default.default.on(getDocument(), clickEvent, `[data-bs-dismiss="${name}"]`, function (event) {
       if (['A', 'AREA'].includes(this.tagName)) {
         event.preventDefault();
       }
@@ -760,7 +776,9 @@
     }
 
     dispose() {
-      [window, this._dialog].forEach(htmlElement => EventHandler__default.default.off(htmlElement, EVENT_KEY));
+      for (const htmlElement of [window, this._dialog]) {
+        EventHandler__default.default.off(htmlElement, EVENT_KEY);
+      }
 
       this._backdrop.dispose();
 
@@ -804,7 +822,7 @@
 
       if (!this._element.parentNode || this._element.parentNode.nodeType !== Node.ELEMENT_NODE) {
         // Don't move modal's DOM position
-        document.body.append(this._element);
+        this._document.body.append(this._element);
       }
 
       this._element.style.display = 'block';
@@ -876,7 +894,7 @@
       this._isTransitioning = false;
 
       this._backdrop.hide(() => {
-        document.body.classList.remove(CLASS_NAME_OPEN);
+        this._document.body.classList.remove(CLASS_NAME_OPEN);
 
         this._resetAdjustments();
 
@@ -923,7 +941,7 @@
         scrollHeight,
         style
       } = this._element;
-      const isModalOverflowing = scrollHeight > document.documentElement.clientHeight; // return if the following background transition hasn't yet completed
+      const isModalOverflowing = scrollHeight > this._document.documentElement.clientHeight; // return if the following background transition hasn't yet completed
 
       if (!isModalOverflowing && style.overflowY === 'hidden' || classList.contains(CLASS_NAME_STATIC)) {
         return;
@@ -952,7 +970,7 @@
 
 
     _adjustDialog() {
-      const isModalOverflowing = this._element.scrollHeight > document.documentElement.clientHeight;
+      const isModalOverflowing = this._element.scrollHeight > this._document.documentElement.clientHeight;
 
       const scrollbarWidth = this._scrollBar.getWidth();
 
@@ -997,7 +1015,7 @@
    */
 
 
-  EventHandler__default.default.on(document, EVENT_CLICK_DATA_API, SELECTOR_DATA_TOGGLE, function (event) {
+  EventHandler__default.default.on(getDocument(), EVENT_CLICK_DATA_API, SELECTOR_DATA_TOGGLE, function (event) {
     const target = getElementFromSelector(this);
 
     if (['A', 'AREA'].includes(this.tagName)) {
@@ -1015,7 +1033,7 @@
           this.focus();
         }
       });
-    }); // avoid conflict when clicking moddal toggler while another one is open
+    }); // avoid conflict when clicking modal toggler while another one is open
 
     const allReadyOpen = SelectorEngine__default.default.findOne(OPEN_SELECTOR);
 

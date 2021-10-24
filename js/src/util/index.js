@@ -310,6 +310,7 @@ const getNextActiveElement = (list, activeElement, shouldGetNext, isCycleAllowed
   return list[Math.max(0, Math.min(index, listLength - 1))]
 }
 
+
 /**
  * @return {window|{}} The proper element
  */
@@ -321,9 +322,9 @@ const getWindow = () => {
 /**
  * @return {document|{}} The proper element
  */
-const getDocument = () => {
-  return typeof document === 'undefined' ? {} : document
 
+const getDocument = () => {
+  return typeof document === 'undefined' ? { documentElement: {} } : document
 }
 
 export {
@@ -355,4 +356,5 @@ export {
   reflow,
   triggerTransitionEnd,
   typeCheckConfig
+
 }

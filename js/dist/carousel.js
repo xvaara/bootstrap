@@ -29,7 +29,7 @@
       return `${obj}`;
     }
 
-    return {}.toString.call(obj).match(/\s([a-z]+)/i)[1].toLowerCase();
+    return Object.prototype.toString.call(obj).match(/\s([a-z]+)/i)[1].toLowerCase();
   };
 
   const getSelector = element => {
@@ -58,7 +58,7 @@
 
   const getElementFromSelector = element => {
     const selector = getSelector(element);
-    return selector ? document.querySelector(selector) : null;
+    return selector ? getDocument().querySelector(selector) : null;
   };
 
   const triggerTransitionEnd = element => {
@@ -78,7 +78,7 @@
   };
 
   const typeCheckConfig = (componentName, config, configTypes) => {
-    Object.keys(configTypes).forEach(property => {
+    for (const property of Object.keys(configTypes)) {
       const expectedTypes = configTypes[property];
       const value = config[property];
       const valueType = value && isElement(value) ? 'element' : toType(value);
@@ -86,7 +86,7 @@
       if (!new RegExp(expectedTypes).test(valueType)) {
         throw new TypeError(`${componentName.toUpperCase()}: Option "${property}" provided type "${valueType}" but expected type "${expectedTypes}".`);
       }
-    });
+    }
   };
 
   const isVisible = element => {
@@ -114,9 +114,9 @@
   const getjQuery = () => {
     const {
       jQuery
-    } = window;
+    } = getWindow();
 
-    if (jQuery && !document.body.hasAttribute('data-bs-no-jquery')) {
+    if (jQuery && !getDocument().body.hasAttribute('data-bs-no-jquery')) {
       return jQuery;
     }
 
@@ -126,11 +126,13 @@
   const DOMContentLoadedCallbacks = [];
 
   const onDOMContentLoaded = callback => {
-    if (document.readyState === 'loading') {
+    if (getDocument().readyState === 'loading') {
       // add listener on the first call when the document is in loading state
       if (!DOMContentLoadedCallbacks.length) {
-        document.addEventListener('DOMContentLoaded', () => {
-          DOMContentLoadedCallbacks.forEach(callback => callback());
+        getDocument().addEventListener('DOMContentLoaded', () => {
+          for (const callback of DOMContentLoadedCallbacks) {
+            callback();
+          }
         });
       }
 
@@ -140,7 +142,7 @@
     }
   };
 
-  const isRTL = () => document.documentElement.dir === 'rtl';
+  const isRTL = () => getDocument().documentElement.dir === 'rtl';
 
   const defineJQueryPlugin = plugin => {
     onDOMContentLoaded(() => {
@@ -186,6 +188,16 @@
     }
 
     return list[Math.max(0, Math.min(index, listLength - 1))];
+  };
+
+  const getWindow = () => {
+    return typeof window === 'undefined' ? {} : window;
+  };
+
+  const getDocument = () => {
+    return typeof document === 'undefined' ? {
+      documentElement: {}
+    } : document;
   };
 
   /**
@@ -284,8 +296,8 @@
       this.touchDeltaX = 0;
       this._config = this._getConfig(config);
       this._indicatorsElement = SelectorEngine__default.default.findOne(SELECTOR_INDICATORS, this._element);
-      this._touchSupported = 'ontouchstart' in document.documentElement || navigator.maxTouchPoints > 0;
-      this._pointerEvent = Boolean(window.PointerEvent);
+      this._touchSupported = 'ontouchstart' in this._document.documentElement || this._window.navigator.maxTouchPoints > 0;
+      this._pointerEvent = Boolean(this._window.PointerEvent);
 
       this._addEventListeners();
     } // Getters
@@ -307,7 +319,7 @@
     nextWhenVisible() {
       // Don't call next when the page isn't visible
       // or the carousel or its parent isn't visible
-      if (!document.hidden && isVisible(this._element)) {
+      if (!this._document.hidden && isVisible(this._element)) {
         this.next();
       }
     }
@@ -343,7 +355,7 @@
       if (this._config && this._config.interval && !this._isPaused) {
         this._updateInterval();
 
-        this._interval = setInterval((document.visibilityState ? this.nextWhenVisible : this.next).bind(this), this._config.interval);
+        this._interval = setInterval((this._document.visibilityState ? this.nextWhenVisible : this.next).bind(this), this._config.interval);
       }
     }
 
@@ -457,9 +469,9 @@
         }
       };
 
-      SelectorEngine__default.default.find(SELECTOR_ITEM_IMG, this._element).forEach(itemImg => {
+      for (const itemImg of SelectorEngine__default.default.find(SELECTOR_ITEM_IMG, this._element)) {
         EventHandler__default.default.on(itemImg, EVENT_DRAG_START, event => event.preventDefault());
-      });
+      }
 
       if (this._pointerEvent) {
         EventHandler__default.default.on(this._element, EVENT_POINTERDOWN, event => start(event));
@@ -517,10 +529,10 @@
         activeIndicator.removeAttribute('aria-current');
         const indicators = SelectorEngine__default.default.find(SELECTOR_INDICATOR, this._indicatorsElement);
 
-        for (let i = 0; i < indicators.length; i++) {
-          if (Number.parseInt(indicators[i].getAttribute('data-bs-slide-to'), 10) === this._getItemIndex(element)) {
-            indicators[i].classList.add(CLASS_NAME_ACTIVE);
-            indicators[i].setAttribute('aria-current', 'true');
+        for (const indicator of indicators) {
+          if (Number.parseInt(indicator.getAttribute('data-bs-slide-to'), 10) === this._getItemIndex(element)) {
+            indicator.classList.add(CLASS_NAME_ACTIVE);
+            indicator.setAttribute('aria-current', 'true');
             break;
           }
         }
@@ -720,12 +732,12 @@
    */
 
 
-  EventHandler__default.default.on(document, EVENT_CLICK_DATA_API, SELECTOR_DATA_SLIDE, Carousel.dataApiClickHandler);
-  EventHandler__default.default.on(window, EVENT_LOAD_DATA_API, () => {
+  EventHandler__default.default.on(getDocument(), EVENT_CLICK_DATA_API, SELECTOR_DATA_SLIDE, Carousel.dataApiClickHandler);
+  EventHandler__default.default.on(getWindow(), EVENT_LOAD_DATA_API, () => {
     const carousels = SelectorEngine__default.default.find(SELECTOR_DATA_RIDE);
 
-    for (let i = 0, len = carousels.length; i < len; i++) {
-      Carousel.carouselInterface(carousels[i], Carousel.getInstance(carousels[i]));
+    for (const carousel of carousels) {
+      Carousel.carouselInterface(carousel, Carousel.getInstance(carousel));
     }
   });
   /**

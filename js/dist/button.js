@@ -24,9 +24,9 @@
   const getjQuery = () => {
     const {
       jQuery
-    } = window;
+    } = getWindow();
 
-    if (jQuery && !document.body.hasAttribute('data-bs-no-jquery')) {
+    if (jQuery && !getDocument().body.hasAttribute('data-bs-no-jquery')) {
       return jQuery;
     }
 
@@ -36,11 +36,13 @@
   const DOMContentLoadedCallbacks = [];
 
   const onDOMContentLoaded = callback => {
-    if (document.readyState === 'loading') {
+    if (getDocument().readyState === 'loading') {
       // add listener on the first call when the document is in loading state
       if (!DOMContentLoadedCallbacks.length) {
-        document.addEventListener('DOMContentLoaded', () => {
-          DOMContentLoadedCallbacks.forEach(callback => callback());
+        getDocument().addEventListener('DOMContentLoaded', () => {
+          for (const callback of DOMContentLoadedCallbacks) {
+            callback();
+          }
         });
       }
 
@@ -67,6 +69,16 @@
         };
       }
     });
+  };
+
+  const getWindow = () => {
+    return typeof window === 'undefined' ? {} : window;
+  };
+
+  const getDocument = () => {
+    return typeof document === 'undefined' ? {
+      documentElement: {}
+    } : document;
   };
 
   /**
@@ -125,7 +137,7 @@
    */
 
 
-  EventHandler__default.default.on(document, EVENT_CLICK_DATA_API, SELECTOR_DATA_TOGGLE, event => {
+  EventHandler__default.default.on(getDocument(), EVENT_CLICK_DATA_API, SELECTOR_DATA_TOGGLE, event => {
     event.preventDefault();
     const button = event.target.closest(SELECTOR_DATA_TOGGLE);
     const data = Button.getOrCreateInstance(button);

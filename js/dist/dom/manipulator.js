@@ -11,10 +11,22 @@
 
   /**
    * --------------------------------------------------------------------------
+   * Bootstrap (v5.1.3): util/index.js
+   * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
+   * --------------------------------------------------------------------------
+   */
+
+  const getWindow = () => {
+    return typeof window === 'undefined' ? {} : window;
+  };
+
+  /**
+   * --------------------------------------------------------------------------
    * Bootstrap (v5.1.3): dom/manipulator.js
    * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
    * --------------------------------------------------------------------------
    */
+
   function normalizeData(val) {
     if (val === 'true') {
       return true;
@@ -54,11 +66,14 @@
       }
 
       const attributes = {};
-      Object.keys(element.dataset).filter(key => key.startsWith('bs')).forEach(key => {
+      const bsKeys = Object.keys(element.dataset).filter(key => key.startsWith('bs'));
+
+      for (const key of bsKeys) {
         let pureKey = key.replace(/^bs/, '');
         pureKey = pureKey.charAt(0).toLowerCase() + pureKey.slice(1, pureKey.length);
         attributes[pureKey] = normalizeData(element.dataset[key]);
-      });
+      }
+
       return attributes;
     },
 
@@ -68,9 +83,10 @@
 
     offset(element) {
       const rect = element.getBoundingClientRect();
+      const windowRef = getWindow();
       return {
-        top: rect.top + window.pageYOffset,
-        left: rect.left + window.pageXOffset
+        top: rect.top + windowRef.pageYOffset,
+        left: rect.left + windowRef.pageXOffset
       };
     },
 

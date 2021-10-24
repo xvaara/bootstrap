@@ -49,7 +49,7 @@
       return `${obj}`;
     }
 
-    return {}.toString.call(obj).match(/\s([a-z]+)/i)[1].toLowerCase();
+    return Object.prototype.toString.call(obj).match(/\s([a-z]+)/i)[1].toLowerCase();
   };
   /**
    * --------------------------------------------------------------------------
@@ -61,7 +61,7 @@
   const getUID = prefix => {
     do {
       prefix += Math.floor(Math.random() * MAX_UID);
-    } while (document.getElementById(prefix));
+    } while (getDocument().getElementById(prefix));
 
     return prefix;
   };
@@ -92,7 +92,7 @@
   };
 
   const typeCheckConfig = (componentName, config, configTypes) => {
-    Object.keys(configTypes).forEach(property => {
+    for (const property of Object.keys(configTypes)) {
       const expectedTypes = configTypes[property];
       const value = config[property];
       const valueType = value && isElement(value) ? 'element' : toType(value);
@@ -100,11 +100,11 @@
       if (!new RegExp(expectedTypes).test(valueType)) {
         throw new TypeError(`${componentName.toUpperCase()}: Option "${property}" provided type "${valueType}" but expected type "${expectedTypes}".`);
       }
-    });
+    }
   };
 
   const findShadowRoot = element => {
-    if (!document.documentElement.attachShadow) {
+    if (!getDocument().documentElement.attachShadow) {
       return null;
     } // Can find the shadow root otherwise it'll return the document
 
@@ -131,9 +131,9 @@
   const getjQuery = () => {
     const {
       jQuery
-    } = window;
+    } = getWindow();
 
-    if (jQuery && !document.body.hasAttribute('data-bs-no-jquery')) {
+    if (jQuery && !getDocument().body.hasAttribute('data-bs-no-jquery')) {
       return jQuery;
     }
 
@@ -143,11 +143,13 @@
   const DOMContentLoadedCallbacks = [];
 
   const onDOMContentLoaded = callback => {
-    if (document.readyState === 'loading') {
+    if (getDocument().readyState === 'loading') {
       // add listener on the first call when the document is in loading state
       if (!DOMContentLoadedCallbacks.length) {
-        document.addEventListener('DOMContentLoaded', () => {
-          DOMContentLoadedCallbacks.forEach(callback => callback());
+        getDocument().addEventListener('DOMContentLoaded', () => {
+          for (const callback of DOMContentLoadedCallbacks) {
+            callback();
+          }
         });
       }
 
@@ -157,7 +159,7 @@
     }
   };
 
-  const isRTL = () => document.documentElement.dir === 'rtl';
+  const isRTL = () => getDocument().documentElement.dir === 'rtl';
 
   const defineJQueryPlugin = plugin => {
     onDOMContentLoaded(() => {
@@ -176,6 +178,16 @@
         };
       }
     });
+  };
+
+  const getWindow = () => {
+    return typeof window === 'undefined' ? {} : window;
+  };
+
+  const getDocument = () => {
+    return typeof document === 'undefined' ? {
+      documentElement: {}
+    } : document;
   };
 
   /**
@@ -210,17 +222,10 @@
       }
 
       return true;
-    }
+    } // Check if a regular expression validates the attribute.
 
-    const regExp = allowedAttributeList.filter(attributeRegex => attributeRegex instanceof RegExp); // Check if a regular expression validates the attribute.
 
-    for (let i = 0, len = regExp.length; i < len; i++) {
-      if (regExp[i].test(attributeName)) {
-        return true;
-      }
-    }
-
-    return false;
+    return allowedAttributeList.filter(attributeRegex => attributeRegex instanceof RegExp).some(regex => regex.test(attributeName));
   };
 
   const DefaultAllowlist = {
@@ -265,12 +270,12 @@
       return sanitizeFn(unsafeHtml);
     }
 
-    const domParser = new window.DOMParser();
+    const windowRef = getWindow();
+    const domParser = new windowRef.DOMParser();
     const createdDocument = domParser.parseFromString(unsafeHtml, 'text/html');
     const elements = [].concat(...createdDocument.body.querySelectorAll('*'));
 
-    for (let i = 0, len = elements.length; i < len; i++) {
-      const element = elements[i];
+    for (const element of elements) {
       const elementName = element.nodeName.toLowerCase();
 
       if (!Object.keys(allowList).includes(elementName)) {
@@ -280,11 +285,12 @@
 
       const attributeList = [].concat(...element.attributes);
       const allowedAttributes = [].concat(allowList['*'] || [], allowList[elementName] || []);
-      attributeList.forEach(attribute => {
+
+      for (const attribute of attributeList) {
         if (!allowedAttribute(attribute, allowedAttributes)) {
           element.removeAttribute(attribute.nodeName);
         }
-      });
+      }
     }
 
     return createdDocument.body.innerHTML;
@@ -541,10 +547,10 @@
       // https://www.quirksmode.org/blog/archives/2014/02/mouse_event_bub.html
 
 
-      if ('ontouchstart' in document.documentElement) {
-        [].concat(...document.body.children).forEach(element => {
+      if ('ontouchstart' in this._document.documentElement) {
+        for (const element of [].concat(...this._document.body.children)) {
           EventHandler__default.default.on(element, 'mouseover', noop);
-        });
+        }
       }
 
       const complete = () => {
@@ -596,8 +602,10 @@
       tip.classList.remove(CLASS_NAME_SHOW); // If this is a touch-enabled device we remove the extra
       // empty mouseover listeners we added for iOS support
 
-      if ('ontouchstart' in document.documentElement) {
-        [].concat(...document.body.children).forEach(element => EventHandler__default.default.off(element, 'mouseover', noop));
+      if ('ontouchstart' in this._document.documentElement) {
+        for (const element of [].concat(...this._document.body.children)) {
+          EventHandler__default.default.off(element, 'mouseover', noop);
+        }
       }
 
       this._activeTrigger[TRIGGER_CLICK] = false;
@@ -626,7 +634,8 @@
         return this.tip;
       }
 
-      const element = document.createElement('div');
+      const element = this._document.createElement('div');
+
       element.innerHTML = this._config.template;
       const tip = element.children[0];
       this.setContent(tip);
@@ -676,7 +685,7 @@
           content = sanitizeHtml(content, this._config.allowList, this._config.sanitizeFn);
         }
 
-        element.innerHTML = content;
+        element.innerHTML = content; // lgtm [js/xss-through-dom]
       } else {
         element.textContent = content;
       }
@@ -776,7 +785,7 @@
     _setListeners() {
       const triggers = this._config.trigger.split(' ');
 
-      triggers.forEach(trigger => {
+      for (const trigger of triggers) {
         if (trigger === 'click') {
           EventHandler__default.default.on(this._element, this.constructor.Event.CLICK, this._config.selector, event => this.toggle(event));
         } else if (trigger !== TRIGGER_MANUAL) {
@@ -785,7 +794,7 @@
           EventHandler__default.default.on(this._element, eventIn, this._config.selector, event => this._enter(event));
           EventHandler__default.default.on(this._element, eventOut, this._config.selector, event => this._leave(event));
         }
-      });
+      }
 
       this._hideModalHandler = () => {
         if (this._element) {
@@ -886,11 +895,13 @@
 
     _getConfig(config) {
       const dataAttributes = Manipulator__default.default.getDataAttributes(this._element);
-      Object.keys(dataAttributes).forEach(dataAttr => {
+
+      for (const dataAttr of Object.keys(dataAttributes)) {
         if (DISALLOWED_ATTRIBUTES.has(dataAttr)) {
           delete dataAttributes[dataAttr];
         }
-      });
+      }
+
       config = { ...this.constructor.Default,
         ...dataAttributes,
         ...(typeof config === 'object' && config ? config : {})
@@ -942,7 +953,9 @@
       const tabClass = tip.getAttribute('class').match(basicClassPrefixRegex);
 
       if (tabClass !== null && tabClass.length > 0) {
-        tabClass.map(token => token.trim()).forEach(tClass => tip.classList.remove(tClass));
+        for (const tClass of tabClass.map(token => token.trim())) {
+          tip.classList.remove(tClass);
+        }
       }
     }
 

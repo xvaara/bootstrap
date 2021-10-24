@@ -19,13 +19,23 @@
   const getjQuery = () => {
     const {
       jQuery
-    } = window;
+    } = getWindow();
 
-    if (jQuery && !document.body.hasAttribute('data-bs-no-jquery')) {
+    if (jQuery && !getDocument().body.hasAttribute('data-bs-no-jquery')) {
       return jQuery;
     }
 
     return null;
+  };
+
+  const getWindow = () => {
+    return typeof window === 'undefined' ? {} : window;
+  };
+
+  const getDocument = () => {
+    return typeof document === 'undefined' ? {
+      documentElement: {}
+    } : document;
   };
 
   /**
@@ -109,8 +119,8 @@
   function findHandler(events, handler, delegationSelector = null) {
     const uidEventList = Object.keys(events);
 
-    for (let i = 0, len = uidEventList.length; i < len; i++) {
-      const event = events[uidEventList[i]];
+    for (const uidEvent of uidEventList) {
+      const event = events[uidEvent];
 
       if (event.originalHandler === handler && event.delegationSelector === delegationSelector) {
         return event;
@@ -134,7 +144,7 @@
   }
 
   function addHandler(element, originalTypeEvent, handler, delegationFn, oneOff) {
-    if (typeof originalTypeEvent !== 'string' || !element) {
+    if (typeof originalTypeEvent !== 'string' || !element || !element.addEventListener) {
       return;
     }
 
@@ -194,12 +204,13 @@
 
   function removeNamespacedHandlers(element, events, typeEvent, namespace) {
     const storeElementEvent = events[typeEvent] || {};
-    Object.keys(storeElementEvent).forEach(handlerKey => {
+
+    for (const handlerKey of Object.keys(storeElementEvent)) {
       if (handlerKey.includes(namespace)) {
         const event = storeElementEvent[handlerKey];
         removeHandler(element, events, typeEvent, event.originalHandler, event.delegationSelector);
       }
-    });
+    }
   }
 
   function getTypeEvent(event) {
@@ -238,20 +249,21 @@
       }
 
       if (isNamespace) {
-        Object.keys(events).forEach(elementEvent => {
+        for (const elementEvent of Object.keys(events)) {
           removeNamespacedHandlers(element, events, elementEvent, originalTypeEvent.slice(1));
-        });
+        }
       }
 
       const storeElementEvent = events[typeEvent] || {};
-      Object.keys(storeElementEvent).forEach(keyHandlers => {
+
+      for (const keyHandlers of Object.keys(storeElementEvent)) {
         const handlerKey = keyHandlers.replace(stripUidRegex, '');
 
         if (!inNamespace || originalTypeEvent.includes(handlerKey)) {
           const event = storeElementEvent[keyHandlers];
           removeHandler(element, events, typeEvent, event.originalHandler, event.delegationSelector);
         }
-      });
+      }
     },
 
     trigger(element, event, args) {
@@ -278,7 +290,7 @@
       }
 
       if (isNative) {
-        evt = document.createEvent('HTMLEvents');
+        evt = getDocument().createEvent('HTMLEvents');
         evt.initEvent(typeEvent, bubbles, true);
       } else {
         evt = new CustomEvent(event, {
@@ -289,14 +301,14 @@
 
 
       if (typeof args !== 'undefined') {
-        Object.keys(args).forEach(key => {
+        for (const key of Object.keys(args)) {
           Object.defineProperty(evt, key, {
             get() {
               return args[key];
             }
 
           });
-        });
+        }
       }
 
       if (defaultPrevented) {

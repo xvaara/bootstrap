@@ -47,7 +47,7 @@
       return `${obj}`;
     }
 
-    return {}.toString.call(obj).match(/\s([a-z]+)/i)[1].toLowerCase();
+    return Object.prototype.toString.call(obj).match(/\s([a-z]+)/i)[1].toLowerCase();
   };
 
   const getSelector = element => {
@@ -76,7 +76,7 @@
 
   const getElementFromSelector = element => {
     const selector = getSelector(element);
-    return selector ? document.querySelector(selector) : null;
+    return selector ? getDocument().querySelector(selector) : null;
   };
 
   const isElement = obj => {
@@ -105,7 +105,7 @@
   };
 
   const typeCheckConfig = (componentName, config, configTypes) => {
-    Object.keys(configTypes).forEach(property => {
+    for (const property of Object.keys(configTypes)) {
       const expectedTypes = configTypes[property];
       const value = config[property];
       const valueType = value && isElement(value) ? 'element' : toType(value);
@@ -113,7 +113,7 @@
       if (!new RegExp(expectedTypes).test(valueType)) {
         throw new TypeError(`${componentName.toUpperCase()}: Option "${property}" provided type "${valueType}" but expected type "${expectedTypes}".`);
       }
-    });
+    }
   };
 
   const isVisible = element => {
@@ -145,9 +145,9 @@
   const getjQuery = () => {
     const {
       jQuery
-    } = window;
+    } = getWindow();
 
-    if (jQuery && !document.body.hasAttribute('data-bs-no-jquery')) {
+    if (jQuery && !getDocument().body.hasAttribute('data-bs-no-jquery')) {
       return jQuery;
     }
 
@@ -157,11 +157,13 @@
   const DOMContentLoadedCallbacks = [];
 
   const onDOMContentLoaded = callback => {
-    if (document.readyState === 'loading') {
+    if (getDocument().readyState === 'loading') {
       // add listener on the first call when the document is in loading state
       if (!DOMContentLoadedCallbacks.length) {
-        document.addEventListener('DOMContentLoaded', () => {
-          DOMContentLoadedCallbacks.forEach(callback => callback());
+        getDocument().addEventListener('DOMContentLoaded', () => {
+          for (const callback of DOMContentLoadedCallbacks) {
+            callback();
+          }
         });
       }
 
@@ -171,7 +173,7 @@
     }
   };
 
-  const isRTL = () => document.documentElement.dir === 'rtl';
+  const isRTL = () => getDocument().documentElement.dir === 'rtl';
 
   const defineJQueryPlugin = plugin => {
     onDOMContentLoaded(() => {
@@ -217,6 +219,16 @@
     }
 
     return list[Math.max(0, Math.min(index, listLength - 1))];
+  };
+
+  const getWindow = () => {
+    return typeof window === 'undefined' ? {} : window;
+  };
+
+  const getDocument = () => {
+    return typeof document === 'undefined' ? {
+      documentElement: {}
+    } : document;
   };
 
   /**
@@ -340,8 +352,10 @@
       // https://www.quirksmode.org/blog/archives/2014/02/mouse_event_bub.html
 
 
-      if ('ontouchstart' in document.documentElement && !parent.closest(SELECTOR_NAVBAR_NAV)) {
-        [].concat(...document.body.children).forEach(elem => EventHandler__default.default.on(elem, 'mouseover', noop));
+      if ('ontouchstart' in this._document.documentElement && !parent.closest(SELECTOR_NAVBAR_NAV)) {
+        for (const elem of [].concat(...this._document.body.children)) {
+          EventHandler__default.default.on(elem, 'mouseover', noop);
+        }
       }
 
       this._element.focus();
@@ -394,7 +408,9 @@
 
 
       if ('ontouchstart' in document.documentElement) {
-        [].concat(...document.body.children).forEach(elem => EventHandler__default.default.off(elem, 'mouseover', noop));
+        for (const elem of [].concat(...document.body.children)) {
+          EventHandler__default.default.off(elem, 'mouseover', noop);
+        }
       }
 
       if (this._popper) {
@@ -532,7 +548,7 @@
       key,
       target
     }) {
-      const items = SelectorEngine__default.default.find(SELECTOR_VISIBLE_ITEMS, this._menu).filter(isVisible);
+      const items = SelectorEngine__default.default.find(SELECTOR_VISIBLE_ITEMS, this._menu).filter(el => isVisible(el));
 
       if (!items.length) {
         return;
@@ -567,8 +583,8 @@
 
       const toggles = SelectorEngine__default.default.find(SELECTOR_DATA_TOGGLE);
 
-      for (let i = 0, len = toggles.length; i < len; i++) {
-        const context = Dropdown.getInstance(toggles[i]);
+      for (const toggle of toggles) {
+        const context = Dropdown.getInstance(toggle);
 
         if (!context || context._config.autoClose === false) {
           continue;
@@ -664,11 +680,12 @@
    */
 
 
-  EventHandler__default.default.on(document, EVENT_KEYDOWN_DATA_API, SELECTOR_DATA_TOGGLE, Dropdown.dataApiKeydownHandler);
-  EventHandler__default.default.on(document, EVENT_KEYDOWN_DATA_API, SELECTOR_MENU, Dropdown.dataApiKeydownHandler);
-  EventHandler__default.default.on(document, EVENT_CLICK_DATA_API, Dropdown.clearMenus);
-  EventHandler__default.default.on(document, EVENT_KEYUP_DATA_API, Dropdown.clearMenus);
-  EventHandler__default.default.on(document, EVENT_CLICK_DATA_API, SELECTOR_DATA_TOGGLE, function (event) {
+  const documentRef = getDocument();
+  EventHandler__default.default.on(documentRef, EVENT_KEYDOWN_DATA_API, SELECTOR_DATA_TOGGLE, Dropdown.dataApiKeydownHandler);
+  EventHandler__default.default.on(documentRef, EVENT_KEYDOWN_DATA_API, SELECTOR_MENU, Dropdown.dataApiKeydownHandler);
+  EventHandler__default.default.on(documentRef, EVENT_CLICK_DATA_API, Dropdown.clearMenus);
+  EventHandler__default.default.on(documentRef, EVENT_KEYUP_DATA_API, Dropdown.clearMenus);
+  EventHandler__default.default.on(documentRef, EVENT_CLICK_DATA_API, SELECTOR_DATA_TOGGLE, function (event) {
     event.preventDefault();
     Dropdown.getOrCreateInstance(this).toggle();
   });

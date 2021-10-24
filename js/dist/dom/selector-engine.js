@@ -52,6 +52,12 @@
     return element.hasAttribute('disabled') && element.getAttribute('disabled') !== 'false';
   };
 
+  const getDocument = () => {
+    return typeof document === 'undefined' ? {
+      documentElement: {}
+    } : document;
+  };
+
   /**
    * --------------------------------------------------------------------------
    * Bootstrap (v5.1.3): dom/selector-engine.js
@@ -60,11 +66,11 @@
    */
   const NODE_TEXT = 3;
   const SelectorEngine = {
-    find(selector, element = document.documentElement) {
+    find(selector, element = getDocument().documentElement) {
       return [].concat(...Element.prototype.querySelectorAll.call(element, selector));
     },
 
-    findOne(selector, element = document.documentElement) {
+    findOne(selector, element = getDocument().documentElement) {
       return Element.prototype.querySelector.call(element, selector);
     },
 

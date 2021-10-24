@@ -111,7 +111,8 @@ class Carousel extends BaseComponent {
     this._indicatorsElement = SelectorEngine.findOne(SELECTOR_INDICATORS, this._element)
     this._touchSupported = 'ontouchstart' in this._document.documentElement || this._window.navigator.maxTouchPoints > 0
     this._pointerEvent = Boolean(this._window.PointerEvent)
-    
+
+
     this._addEventListeners()
   }
 
