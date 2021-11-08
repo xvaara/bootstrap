@@ -321,7 +321,7 @@ const getWindow = () => {
  * @return {document|{}} The proper element
  */
 const getDocument = () => {
-  return typeof document !== 'undefined' ? document : { documentElement: {} }
+  return typeof document !== 'undefined' ? document : {}
 }
 
 export {
