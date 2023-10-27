@@ -1,27 +1,27 @@
 /**
  * --------------------------------------------------------------------------
- * Bootstrap (v5.2.2): dropdown.js
+ * Bootstrap dropdown.js
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
  * --------------------------------------------------------------------------
  */
 
 import * as Popper from '@popperjs/core'
+import BaseComponent from './base-component.js'
+import EventHandler from './dom/event-handler.js'
+import Manipulator from './dom/manipulator.js'
+import SelectorEngine from './dom/selector-engine.js'
 import {
   defineJQueryPlugin,
   execute,
   getElement,
   getNextActiveElement,
+  getDocument,
   isDisabled,
   isElement,
   isRTL,
   isVisible,
-  noop,
-  getDocument
-} from './util/index'
-import EventHandler from './dom/event-handler'
-import Manipulator from './dom/manipulator'
-import SelectorEngine from './dom/selector-engine'
-import BaseComponent from './base-component'
+  noop
+} from './util/index.js'
 
 /**
  * Constants
@@ -97,7 +97,7 @@ class Dropdown extends BaseComponent {
 
     this._popper = null
     this._parent = this._element.parentNode // dropdown wrapper
-    // todo: v6 revert #37011 & change markup https://getbootstrap.com/docs/5.2/forms/input-group/
+    // TODO: v6 revert #37011 & change markup https://getbootstrap.com/docs/5.3/forms/input-group/
     this._menu = SelectorEngine.next(this._element, SELECTOR_MENU)[0] ||
       SelectorEngine.prev(this._element, SELECTOR_MENU)[0] ||
       SelectorEngine.findOne(SELECTOR_MENU, this._parent)
@@ -312,7 +312,7 @@ class Dropdown extends BaseComponent {
 
     // Disable Popper if we have a static display or Dropdown is in Navbar
     if (this._inNavbar || this._config.display === 'static') {
-      Manipulator.setDataAttribute(this._menu, 'popper', 'static') // todo:v6 remove
+      Manipulator.setDataAttribute(this._menu, 'popper', 'static') // TODO: v6 remove
       defaultBsPopperConfig.modifiers = [{
         name: 'applyStyles',
         enabled: false
@@ -410,7 +410,7 @@ class Dropdown extends BaseComponent {
 
     event.preventDefault()
 
-    // todo: v6 revert #37011 & change markup https://getbootstrap.com/docs/5.2/forms/input-group/
+    // TODO: v6 revert #37011 & change markup https://getbootstrap.com/docs/5.3/forms/input-group/
     const getToggleButton = this.matches(SELECTOR_DATA_TOGGLE) ?
       this :
       (SelectorEngine.prev(this, SELECTOR_DATA_TOGGLE)[0] ||
