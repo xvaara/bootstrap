@@ -4,7 +4,7 @@
   * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
   */
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('../dom/event-handler'), require('../dom/selector-engine'), require('./config'), require('./index.js')) :
+  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('../dom/event-handler.js'), require('../dom/selector-engine.js'), require('./config.js'), require('./index.js')) :
   typeof define === 'function' && define.amd ? define(['../dom/event-handler', '../dom/selector-engine', './config', './index'], factory) :
   (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.Focustrap = factory(global.EventHandler, global.SelectorEngine, global.Config, global.Index));
 })(this, (function (EventHandler, SelectorEngine, Config, index_js) { 'use strict';
