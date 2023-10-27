@@ -288,14 +288,14 @@ const getNextActiveElement = (list, activeElement, shouldGetNext, isCycleAllowed
  * @return {window|{}} The proper element
  */
 const getWindow = () => {
-  return typeof window !== 'undefined' ? window : {}
+  return typeof window === 'undefined' ? {} : window
 }
 
 /**
  * @return {document|{}} The proper element
  */
 const getDocument = () => {
-  return typeof document !== 'undefined' ? document : {}
+  return typeof document === 'undefined' ? {} : document
 }
 
 export {
